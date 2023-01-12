@@ -1,0 +1,1 @@
+add_library(audio_output OBJECT AudioOutputService.cpp)

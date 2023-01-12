@@ -1,0 +1,1 @@
+add_library(engine OBJECT engine.cpp set_params.cpp)

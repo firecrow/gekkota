@@ -1,0 +1,1 @@
+add_library(math OBJECT utils_global.cpp)

@@ -1,0 +1,1 @@
+void tear_down(struct wl_buffer *buffer);

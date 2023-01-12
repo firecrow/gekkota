@@ -1,0 +1,1 @@
+add_library(title OBJECT Title.cpp)

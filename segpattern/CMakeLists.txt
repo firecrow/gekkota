@@ -1,0 +1,1 @@
+add_library(segpattern OBJECT segpattern.cpp)

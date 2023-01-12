@@ -1,0 +1,1 @@
+add_library(sound OBJECT sound.cpp)

@@ -1,0 +1,1 @@
+add_library(instrument OBJECT Classical.cpp dispatch.cpp Instrument.cpp InstrumentRouter.cpp KeysInstrument.cpp Tone.cpp)

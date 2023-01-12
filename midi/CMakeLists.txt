@@ -1,0 +1,1 @@
+add_library(midi OBJECT MidiService.cpp accept.cpp)

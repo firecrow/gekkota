@@ -1,0 +1,1 @@
+double position_in_transition(double value, double start, double end);

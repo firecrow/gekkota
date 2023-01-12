@@ -1,0 +1,1 @@
+add_library(plot_visual OBJECT GkaChart.cpp GkaPlot.cpp GkaChartDetail.cpp GkaCrosshair.cpp)
