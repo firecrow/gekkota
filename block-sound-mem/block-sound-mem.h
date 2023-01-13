@@ -18,6 +18,7 @@ struct gka_mem_block {
 
 enum gka_value_operand {
   GKA_UNSPECIFIED = 0,
+  GKA_RESERVED_BY_NEIGHBOUR,
   GKA_SOUND,
   GKA_END,
   GKA_SEGMENT_VALUE,

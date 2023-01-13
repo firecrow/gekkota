@@ -72,7 +72,7 @@ struct gka_segment *gka_segment_getnext(struct gka_segment *current){
 
 int gka_create_link(struct gka_mem_block *blk, gka_local_address place){
   struct gka_entry *entry = gka_pointer(blk, place);
-  if(entry->head.operand != GKA_UNSPECIFIED){
+  if(entry->head.operand != GKA_RESERVED_BY_NEIGHBOUR){
     fprintf(stderr, "FATAL MEMORY CLOBBER");
     exit(1);
     return 0;
@@ -86,11 +86,20 @@ int gka_create_link(struct gka_mem_block *blk, gka_local_address place){
 }
 
 int gka_extend_pattern(pattern, current, seg){
-  int current_is_latest = pattern->blk->allocated == current+sizeof(struct gka_entry);
-  if(current_is_latest){
-    return gka_segment_create(pattern->blk, seg->gotime, seg->start_value, seg->ease);
+  struct gka_entry *neighbour = get_pointer(pattern->blk, current+sizeof(struct gka_entry));
+  struct gka_entry *next_neighbour = get_pointer(pattern->blk, current+sizeof(struct gka_entry)*2);
+  if(neighbour->head.operand != GKA_RESERVED_BY_NEIGHBOUR){
+    fprintf(stderr, "FATAL MEMORY CLOBBER");
+    exit(1);
+    return 0;
+  }
+  if(next_neighbour->head.operand == GKA_UNSPECIFIED){
+    gka_local_address newlp = gka_segment_create(pattern->blk, seg->gotime, seg->start_value, seg->ease);
+    next_neighbour->head.operand = GKA_RESERVED_BY_NEIGHBOUR;
   }else{
     gka_local_address newlp = gka_segment_create_link(pattern->blk, current);
+    next_neighbour = get_pointer(pattern->blk, newlp+sizeof(struct gka_entry));
+    next_neighbour->head.operand = GKA_RESERVED_BY_NEIGHBOUR;
 
     struct gka_segment *s = (gka_segment *)gka_pointer(blk, newlp);
 
