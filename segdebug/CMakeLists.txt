@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(Gekkota-SegDebug VERSION 0.1)
 
 add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_11)
+target_compile_features(compiler_flags INTERFACE cxx_std_17)
 
 add_subdirectory(../plot-visual sibling-plot-visual)
 add_subdirectory(../frontend-service sibling-frontend-service)

@@ -7,5 +7,5 @@ public:
   gka_timeint start_time;
   Logger logger;
   InstrumentRouter *midiRouter;
-  vector<SoundEvent *> sound_events;
+  vector<GkaSoundEvent *> sound_events;
 };

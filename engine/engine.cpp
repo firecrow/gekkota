@@ -3,12 +3,12 @@
 static const char *device = "hw:3,0"; /* playback device */
 
 static double generate_frame_value(
-    Title &ctx, vector<SoundEvent *> events, gka_timeint local,
-    const gka_audio_params &gka_params
+    Title &ctx, vector<GkaSoundEvent *> events, gka_timeint local,
+    const uint32_t rate
 ) {
   double frame_value = 0.0;
   int sound_id = 0;
-  for (SoundEvent *s : events) {
+  for (GkaSoundEvent *s : events) {
     // fprintf(Title::instance.logger.file, "rendering sound %d\n", sound_id++);
     if (s->repeat != nullptr) {
       gka_timeint local_repeat;
@@ -20,15 +20,14 @@ static double generate_frame_value(
       }
       local_repeat =
           gka_time_modulus(local - s->repeat->start, s->repeat->time);
-      frame_value +=
-          s->getFrameValue(s->repeat->start, local_repeat, gka_params);
+      frame_value += s->getFrameValue(s->repeat->start, local_repeat, rate);
       // fprintf(
       //     ctx.logger.file, "local/local repeat: %ld/%ld\n", local,
       //     local_repeat
       //);
     } else {
       // fprintf(Title::instance.logger.file, "from local %ld\n", local);
-      frame_value += s->getFrameValue(s->gotime, local, gka_params);
+      frame_value += s->getFrameValue(s->gotime, local, rate);
     }
   }
   fprintf(Title::instance.logger.file, "%lf\n", frame_value);

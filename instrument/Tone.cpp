@@ -1,6 +1,6 @@
 #include "../gekkota.h"
 
-SoundEvent *
+GkaSoundEvent *
 Tone::constructSound(double freq, double duration, double repeat_every) {
 
   gka_segpattern *freq_segs =
@@ -19,14 +19,14 @@ Tone::constructSound(double freq, double duration, double repeat_every) {
   vector<GkaSound *> group = {sound};
 
   gka_timeint repeat_time = BEAT_NS_32nds * 64;
-  SoundRepeat *repeat = new SoundRepeat(0, repeat_time);
+  GkaSoundRepeat *repeat = new GkaSoundRepeat(0, repeat_time);
 
-  SoundEvent *eventg = new SoundEvent(group, NULL, repeat);
+  GkaSoundEvent *eventg = new GkaSoundEvent(group, NULL, repeat);
 
   return eventg;
 }
 
-SoundEvent *Tone::constructKey(double freq, long duration) {
+GkaSoundEvent *Tone::constructKey(double freq, long duration) {
   double fluctuate_tone = 3.0;
   vector<GkaSound *> group = {};
   int GROUP_SIZE = 1;
@@ -48,7 +48,7 @@ SoundEvent *Tone::constructKey(double freq, long duration) {
     group.push_back(sound);
   }
 
-  SoundEvent *eventg = new SoundEvent(group, NULL, NULL);
+  GkaSoundEvent *eventg = new GkaSoundEvent(group, NULL, NULL);
 
   return eventg;
 }

@@ -10,22 +10,28 @@ GkaSound::GkaSound(
   this->distortion = distortion;
 }
 
-SoundRepeat::SoundRepeat(gka_timeint start, gka_timeint repeat_every) {
+GkaSoundRepeat::GkaSoundRepeat(gka_timeint start, gka_timeint repeat_every) {
   this->start = start;
   this->time = repeat_every;
 }
 
-SoundEvent::SoundEvent(
-    vector<GkaSound *> soundg, gka_timeint gotime, SoundRepeat *repeat
+GkaSoundEvent::GkaSoundEvent(
+    vector<GkaSound *> soundg, gka_timeint gotime, GkaSoundRepeat *repeat
 ) {
   this->soundg = soundg;
   this->repeat = repeat;
   this->gotime = gotime;
 }
 
-double SoundEvent::getFrameValue(
-    gka_timeint start, gka_timeint local, const gka_audio_params &gka_params
-) {
+GkaSoundEvent::GkaSoundEvent(vector<GkaSound *> soundg, gka_timeint gotime) {
+  this->soundg = soundg;
+  this->gotime = gotime;
+
+  this->repeat = 0;
+}
+
+double
+GkaSoundEvent::getFrameValue(gka_timeint start, gka_timeint local, long rate) {
 
   double base = 1.0;
   double value = 0.0;
@@ -40,8 +46,7 @@ double SoundEvent::getFrameValue(
       volume = 1.0;
     }
 
-    double rate = (double)gka_params.rate;
-    double step = MAX_PHASE * freq / rate;
+    double step = MAX_PHASE * freq / (double)rate;
 
     value = (sin(s->phase) * volume);
 
@@ -52,7 +57,7 @@ double SoundEvent::getFrameValue(
   return value;
 }
 
-void SoundEvent::fadeOut(long position_duration, gka_timeint local) {
+void GkaSoundEvent::fadeOut(long position_duration, gka_timeint local) {
   cout << "fade out called" << endl;
 
   for (GkaSound *s : this->soundg) {

@@ -1,5 +1,5 @@
 struct Tone {
-  static SoundEvent *
+  static GkaSoundEvent *
   constructSound(double freq, double duration, double repeat_every);
-  static SoundEvent *constructKey(double freq, long duration);
+  static GkaSoundEvent *constructKey(double freq, long duration);
 };

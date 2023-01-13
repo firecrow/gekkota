@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
-project(Gekkota VERSION 0.1)
+project(TestSegPattern VERSION 0.1)
 include(CTest)
 
 add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_11)
+target_compile_features(compiler_flags INTERFACE cxx_std_17)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 

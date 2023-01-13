@@ -1,6 +1,6 @@
 #include "../gekkota.h"
 
-void InstrumentRouter::submit(SoundEvent *sound) {
+void InstrumentRouter::submit(GkaSoundEvent *sound) {
   Title::instance.sound_events.push_back(sound);
 }
 

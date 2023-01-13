@@ -12,22 +12,21 @@ struct GkaSound {
   );
 };
 
-struct SoundRepeat {
+struct GkaSoundRepeat {
   gka_timeint start;
   gka_timeint time;
-  SoundRepeat(gka_timeint start, gka_timeint repeat_every);
+  GkaSoundRepeat(gka_timeint start, gka_timeint repeat_every);
 };
 
-struct SoundEvent {
+struct GkaSoundEvent {
   vector<GkaSound *> soundg;
   gka_timeint gotime;
-  SoundRepeat *repeat;
+  GkaSoundRepeat *repeat;
 
-  SoundEvent(
-      vector<GkaSound *> soundg, gka_timeint gotime, SoundRepeat *repeat
+  GkaSoundEvent(
+      vector<GkaSound *> soundg, gka_timeint gotime, GkaSoundRepeat *repeat
   );
-  double getFrameValue(
-      gka_timeint start, gka_timeint local, const gka_audio_params &gka_params
-  );
+  GkaSoundEvent(vector<GkaSound *> soundg, gka_timeint gotime);
+  double getFrameValue(gka_timeint start, gka_timeint local, const long rate);
   void fadeOut(long position_duration, gka_timeint local);
 };
