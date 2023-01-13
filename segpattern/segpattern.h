@@ -52,6 +52,5 @@ double value_from_segment(
     struct gka_segpattern *pattern, double base_value, gka_timeint offset
 );
 
-struct gka_segment *segment_from_segment(
-    struct gka_segpattern *pattern, double base_value, double offset
-);
+struct gka_segment *
+segment_from_segment(struct gka_segpattern *pattern, gka_timeint offset);

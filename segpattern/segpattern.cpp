@@ -60,9 +60,8 @@ void gka_segpattern::add_segment(struct gka_segment *seg) {
   }
 }
 
-struct gka_segment *segment_from_segment(
-    struct gka_segpattern *pattern, double base_value, gka_timeint offset
-) {
+struct gka_segment *
+segment_from_segment(struct gka_segpattern *pattern, gka_timeint offset) {
   struct gka_segment *segment = pattern->root;
   while (segment && segment->next && (offset > segment->next->gotime)) {
     segment = segment->next;
@@ -74,8 +73,7 @@ double value_from_segment(
     struct gka_segpattern *pattern, double base_value, gka_timeint offset
 ) {
 
-  struct gka_segment *segment =
-      segment_from_segment(pattern, base_value, offset);
+  struct gka_segment *segment = segment_from_segment(pattern, offset);
 
   double next_value = segment->start_value;
   if (segment && segment->next) {
