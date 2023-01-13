@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include "block-sound-mem.h"
 
 enum gka_ease { NO_EASE = 0, EASE_IN, EASE_IN_OUT, EASE_OUT };
 
@@ -10,19 +11,17 @@ typedef struct gka_segment (*get_next_segment_func
 typedef void (*get_ease_func
 )(double *progress, struct gka_segment *segment, double start, double end);
 
-struct gka_segment {
-  gka_timeint gotime;
-  double start_value;
-  struct gka_segment *next;
-  get_ease_func ease;
-  gka_segment(gka_timeint gotime, double start_value, get_ease_func ease);
+struct gka_segpattern_pattern {
+  struct gka_segment *root;
+  struct gka_mem_block *blk;
 };
 
-struct gka_segpattern {
-  struct gka_segment *root;
-  gka_segpattern(gka_segment *_root);
-  void add_segment(gka_segment *seg);
-};
+void gka_segpattern_add_segment(gka_segment *seg);
+int gka_segment_create(
+    struct gka_mem_block *blk, gka_value gotime, gka_decimal start_value,
+    gka_subvalue ease
+);
+void gka_segpattern(gka_segment *_root);
 
 void square_ease(
     double *progress, struct gka_segment *segment, double start, double end
