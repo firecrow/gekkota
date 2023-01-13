@@ -1,16 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <functional>
-#include <signal.h>
-#include <time.h>
-#include <sys/mman.h>
-#include <vector>
-#include <iostream>
-#include <thread>
-#include <inttypes.h>
-
+#include "gekkota-external.h"
 #include <blend2d.h>
 
 using namespace std;
@@ -19,7 +7,7 @@ typedef void (*void_fptr)();
 
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"
-#include "./time/time.h"
+#include "./time/gka_time.h"
 #include "./logger/logger.h"
 #include "./service/service.h"
 #include "./engine/engine.h"
