@@ -5,6 +5,7 @@ struct GkaSound {
   struct gka_segpattern *volume;
   struct gka_segpattern *distortion;
   double phase;
+  double step;
   double volume_last;
 
   GkaSound(

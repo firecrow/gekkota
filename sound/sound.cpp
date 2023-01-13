@@ -4,6 +4,7 @@ GkaSound::GkaSound(
     gka_segpattern *freq, gka_segpattern *volume, gka_segpattern *distortion
 ) {
   this->phase = 0.0;
+  this->step = 0.0;
   this->volume_last = 0.0;
   this->freq = freq;
   this->volume = volume;
@@ -46,13 +47,15 @@ GkaSoundEvent::getFrameValue(gka_timeint start, gka_timeint local, long rate) {
       volume = 1.0;
     }
 
-    double step = MAX_PHASE * freq / (double)rate;
+    s->step = MAX_PHASE * freq / (double)rate;
 
     value = (sin(s->phase) * volume);
 
-    s->phase += step;
-    if (s->phase >= MAX_PHASE)
+    s->phase += s->step;
+    if (s->phase >= MAX_PHASE) {
+      printf("removnig\n");
       s->phase -= MAX_PHASE;
+    }
   }
   return value;
 }
