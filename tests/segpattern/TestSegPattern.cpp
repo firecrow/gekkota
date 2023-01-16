@@ -98,7 +98,11 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
   gka_decimal_t VALUE2 = 1.0;
   gka_operand_t TRANSITION2 = GKA_LINEAR;
 
-  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+  gka_time_t START3 = 200;
+  gka_decimal_t VALUE3 = 1.5;
+  gka_operand_t TRANSITION3 = GKA_LINEAR;
+
+  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
 
   gka_local_address_t t = gka_segment_create(m, START, VALUE, TRANSITION);
 
@@ -112,6 +116,17 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
   EXPECT_EQ(s2->values.placement.start_time, START2);
   EXPECT_EQ(s2->values.placement.value, VALUE2);
   EXPECT_EQ(s2->transition, TRANSITION2);
+
+  struct gka_entry _s2;
+  _s2.values.placement.start_time = START3;
+  _s2.values.placement.value = VALUE3;
+  _s2.transition = TRANSITION3;
+  gka_local_address_t t3 = gka_extend_segment(m, t2, &_s2);
+
+  struct gka_entry *s3 = gka_pointer(m, t3);
+  EXPECT_EQ(s3->values.placement.start_time, START3);
+  EXPECT_EQ(s3->values.placement.value, VALUE3);
+  EXPECT_EQ(s3->transition, TRANSITION3);
 }
 
 /*

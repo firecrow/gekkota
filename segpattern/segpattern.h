@@ -64,3 +64,7 @@ double value_from_segment(
 struct gka_entry *segment_from_segment(
     struct gka_mem_block *blk, struct gka_entry *pattern, gka_time_t offset
 );
+
+void gka_set_entry_status(
+    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
+);

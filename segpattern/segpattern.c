@@ -103,9 +103,14 @@ gka_local_address_t gka_segment_create(
   return localp;
 }
 
+void gka_set_entry_status(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type) {
+  struct gka_entry *s = gka_pointer(blk, localp);
+  s->type = type;
+}
+
 gka_local_address_t gka_pattern_create(struct gka_mem_block *blk) {
   gka_local_address_t localp =
-      gka_allocate_space(blk, sizeof(struct gka_entry));
+      gka_allocate_space(blk, sizeof(struct gka_entry)*2);
 
   if (localp == GKA_BOUNDRY_ACTION) {
     fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
@@ -116,6 +121,7 @@ gka_local_address_t gka_pattern_create(struct gka_mem_block *blk) {
 
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->type = GKA_SOUND;
+  gka_set_entry_status(blk, localp+sizeof(struct gka_entry), GKA_RESERVED_BY_NEIGHBOUR);
 
   return localp;
 }
@@ -134,12 +140,19 @@ gka_local_address_t gka_extend_segment(
     return 0;
   }
   if(next_neighbour->type == GKA_UNSPECIFIED){
+    if(!gka_claim_entry(blk, next_neighbour_address)){
+      fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
+      exit(1);
+      return 0;
+    }
+
     printf("adding a new thing..............%lf\n", seg->values.placement.value);
     
     neighbour->values.placement.start_time = seg->values.placement.start_time;
     neighbour->values.placement.value = seg->values.placement.value;
     neighbour->transition = seg->transition;
 
+    gka_set_entry_status(blk, next_neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
     next_neighbour->type = GKA_RESERVED_BY_NEIGHBOUR;
     return neighbour_address;
   }else{
