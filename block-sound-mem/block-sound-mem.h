@@ -1,5 +1,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define GKA_BOUNDRY_ACTION 0
 #define GKA_SUCCESS 0
@@ -18,6 +20,7 @@ struct gka_mem_block {
   gka_subvalue_t allocated;
   void *data;
 };
+
 
 enum gka_value_operand {
   GKA_UNSPECIFIED = 0,
@@ -62,6 +65,7 @@ struct gka_entry {
   } values;
 };
 
+struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size);
 gka_local_address_t gka_to_local(struct gka_mem_block *blk, struct gka_entry *entry);
 gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size);
 struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);

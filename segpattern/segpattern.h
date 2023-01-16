@@ -20,7 +20,7 @@ void gka_segpattern_add_segment(
     struct gka_mem_block *blk, struct gka_entry *pattern, struct gka_entry *seg
 );
 
-int gka_entry_create(
+gka_local_address_t gka_segment_create(
     struct gka_mem_block *blk, gka_value_t gotime, gka_decimal_t start_value,
     gka_operand_t ease
 );

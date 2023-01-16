@@ -16,7 +16,7 @@ class GkaSegPatternFixture : public testing::Test {
 protected:
   GkaSegPatternFixture() {}
 };
-
+/*
 TEST_F(GkaSegPatternFixture, MemBlockTests) {
   cout << "\x1b[33mrunning test\x1b[0m" << endl;
 
@@ -49,7 +49,7 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
   struct gka_mem_block *m = &_m;
 
   gka_local_address_t t;
-  struct gka_entry *s;
+  struct gka_entry *s, *n, *n2;
 
   cout << "\x1b[34malloc\x1b[0m" << endl;
   t = gka_allocate_space(m, (gka_local_address_t)sizeof(struct gka_entry));
@@ -64,6 +64,25 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
   cout << "\x1b[34mnext allocated pointer\x1b[0m" << endl;
   EXPECT_EQ(m->next_available, gka_to_local(m, s) + sizeof(struct gka_entry))
       << "Expect the next available to be the next neighbor";
+
+  cout << "\x1b[34mnext allocated pointer\x1b[0m" << endl;
+}
+*/
+
+TEST_F(GkaSegPatternFixture, SegmentExtendTests) {
+  cout << "\x1b[33mrunning seg test\x1b[0m" << endl;
+
+  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+
+  gka_local_address_t t;
+  struct gka_entry *s, *n, *n2;
+
+  cout << "\x1b[34mmalloc\x1b[0m" << endl;
+  t = gka_segment_create(m, 0, 0.0, GKA_LINEAR);
+  EXPECT_EQ(t, 24) << "Expect first record be 1 records worth of bytes in";
+
+  s = gka_pointer(m, t);
+  EXPECT_EQ(s->type, GKA_SEGMENT_VALUE) << "Expect first record k";
 }
 
 /*

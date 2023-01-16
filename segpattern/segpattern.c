@@ -58,7 +58,7 @@ gka_apply_transition(
 }
 
 
-int gka_segment_create(
+gka_local_address_t gka_segment_create(
         struct gka_mem_block *blk, gka_value_t start_time, gka_decimal_t start_value,
         gka_operand_t ease
     ) {
@@ -66,16 +66,18 @@ int gka_segment_create(
       gka_allocate_space(blk, sizeof(struct gka_entry));
 
   if (localp == GKA_BOUNDRY_ACTION) {
-    fprintf(stderr, "Error allocating segment");
+    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
     return GKA_MEMORY_FAILURE;
   }
+  printf("create\n");
 
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->values.placement.start_time = start_time;
   s->values.placement.value = start_value;
   s->transition = ease;
+  s->type = GKA_SEGMENT_VALUE;
 
-  return GKA_SUCCESS;
+  return localp;
 }
 
 gka_local_address_t gka_segpattern_get_next_segment(struct gka_mem_block *blk, gka_local_address_t local_seg){
