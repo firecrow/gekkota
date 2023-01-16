@@ -16,7 +16,6 @@ class GkaSegPatternFixture : public testing::Test {
 protected:
   GkaSegPatternFixture() {}
 };
-/*
 TEST_F(GkaSegPatternFixture, MemBlockTests) {
   cout << "\x1b[33mrunning test\x1b[0m" << endl;
 
@@ -67,9 +66,8 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
 
   cout << "\x1b[34mnext allocated pointer\x1b[0m" << endl;
 }
-*/
 
-TEST_F(GkaSegPatternFixture, SegmentExtendTests) {
+TEST_F(GkaSegPatternFixture, SegmentCreateTests) {
   cout << "\x1b[33mrunning seg test\x1b[0m" << endl;
 
   struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
@@ -84,6 +82,8 @@ TEST_F(GkaSegPatternFixture, SegmentExtendTests) {
   s = gka_pointer(m, t);
   EXPECT_EQ(s->type, GKA_SEGMENT_VALUE) << "Expect first record k";
 }
+
+TEST_F(GkaSegPatternFixture, PatternCreateTests) {}
 
 /*
 TEST_F(GkaSegPatternFixture, AddSegsToPattern) {

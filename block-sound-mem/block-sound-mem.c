@@ -42,3 +42,7 @@ struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t loc
     }
     return (void *)(blk->data + localp);
 }
+
+struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset){
+    return gka_pointer(blk, sizeof(struct gka_entry)*offset);
+}

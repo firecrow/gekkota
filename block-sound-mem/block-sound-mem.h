@@ -69,3 +69,4 @@ struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size);
 gka_local_address_t gka_to_local(struct gka_mem_block *blk, struct gka_entry *entry);
 gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size);
 struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);
+struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset);
