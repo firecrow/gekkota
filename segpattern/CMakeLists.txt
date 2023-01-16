@@ -1,1 +1,1 @@
-add_library(segpattern OBJECT segpattern.cpp)
+add_library(segpattern OBJECT segpattern.c)

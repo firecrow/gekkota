@@ -1,6 +1,6 @@
 #include "block-sound-mem.h"
 
-gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_subvalue_t size){
+gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size){
    if(blk->allocated + size > blk->allocated){
         return GKA_BOUNDRY_ACTION; 
    } 

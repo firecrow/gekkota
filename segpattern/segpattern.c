@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../block-sound-mem/block-sound-mem.h"
+#include "segpattern.h"
 
 void linear_ease(
     double *progress, struct gka_entry *segment, double start, double end
@@ -103,8 +104,8 @@ int gka_create_link(struct gka_mem_block *blk, gka_local_address_t place){
 
 int gka_extend_pattern(
      struct gka_mem_block *blk, struct gka_entry *pattern, gka_local_address_t current, struct gka_entry *seg){
-  struct gka_entry *neighbour = get_pointer(blk, current+sizeof(struct gka_entry));
-  struct gka_entry *next_neighbour = get_pointer(blk, current+sizeof(struct gka_entry)*2);
+  struct gka_entry *neighbour = gka_pointer(blk, current+sizeof(struct gka_entry));
+  struct gka_entry *next_neighbour = gka_pointer(blk, current+sizeof(struct gka_entry)*2);
   if(neighbour->type != GKA_RESERVED_BY_NEIGHBOUR){
     fprintf(stderr, "FATAL MEMORY CLOBBER");
     exit(1);
@@ -115,8 +116,8 @@ int gka_extend_pattern(
       blk, seg->values.placement.start_time, seg->values.placement.value, seg->transition);
     next_neighbour->type = GKA_RESERVED_BY_NEIGHBOUR;
   }else{
-    gka_local_address_t newlp = gka_segment_create_link(blk, current);
-    next_neighbour = get_pointer(blk, newlp+sizeof(struct gka_entry));
+    gka_local_address_t newlp = gka_create_link(blk, current);
+    next_neighbour = gka_pointer(blk, newlp+sizeof(struct gka_entry));
     next_neighbour->type = GKA_RESERVED_BY_NEIGHBOUR;
 
     struct gka_entry *s = (struct gka_entry*)gka_pointer(blk, newlp);
@@ -136,19 +137,19 @@ void gka_segpattern_add_segment(struct gka_mem_block *blk, struct gka_entry *pat
     struct gka_entry *current = next;
     while (next) {
       current = next;
-      next = gka_segment_getnext(blk, next - blk);
+      next = gka_segpattern_get_next_segment(blk, (gka_local_address_t)((uint64_t)next - (uint64_t)blk));
     }
-    gka_extend_pattern(pattern, current, (&seg - next), (&seg - blk));
+    gka_extend_pattern(pattern, current, (gka_local_address_t)((uint64_t)seg - (uint64_t)next), (gka_local_address_t)((uint64_t)seg - (uint64_t)blk));
   }
 }
 
-struct gka_segment *
+struct gka_entry *
 segment_from_segment(struct gka_mem_block *blk, struct gka_entry *pattern, gka_time_t offset) {
     struct gka_entry *next = gka_pointer(blk, pattern->addr);
     struct gka_entry *current = next;
     while (next) {
       current = next;
-      next = gka_segment_getnext(blk, blk - next);
+      next = gka_segpattern_get_next_segment(blk, (gka_local_address_t)((uint64_t)blk - (uint64_t)next));
     }
 
   return next;
@@ -159,7 +160,7 @@ double value_from_segment(
 ) {
 
   struct gka_entry *segment = segment_from_segment(blk, pattern, offset);
-  struct gka_entry *next = gka_segment_getnext(blk, blk - segment);
+  struct gka_entry *next = gka_segpattern_get_next_segment(blk, (gka_local_address_t)((uint64_t)blk - (uint64_t)segment));
 
   if (!next) {
     return base_value * segment->values.placement.value;

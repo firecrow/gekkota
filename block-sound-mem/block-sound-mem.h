@@ -1,4 +1,5 @@
 #include <inttypes.h>
+#include <sys/types.h>
 
 #define GKA_BOUNDRY_ACTION 0
 #define GKA_SUCCESS 0
@@ -36,8 +37,8 @@ enum gka_transition_type {
 /* This is the basic block layout that other objects will fit itno*/
 struct gka_entry {
   /* this is the set of values which determing if this is a sound, a segment, or
-   * an indication to continue at another address */
-  /* this is the indication of what type of entry it is, uses the gka_value_operand enum*/
+   * an indication to continue at another address 
+   * this is the indication of what type of entry it is, uses the gka_value_operand enum*/
   gka_operand_t type;
   /* this is the function identifier of the function used to smooth
     transitions such as ease, it uses values fro gka_transition_type enum */
@@ -59,5 +60,5 @@ struct gka_entry {
   } values;
 };
 
-gka_local_address gka_allocate_space(struct gka_mem_block *blk, size_t size);
-void *gka_pointer(struct gka_mem_block *blk, gka_local_address localp);
+gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size);
+void *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);
