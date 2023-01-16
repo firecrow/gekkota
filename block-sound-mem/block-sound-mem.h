@@ -8,12 +8,12 @@ typedef uint64_t gka_value_t;
 typedef double gka_decimal_t;
 typedef uint32_t gka_subvalue_t;
 typedef uint16_t gka_operand_t;
-typedef gka_subvalue gka_local_address_t;
-typedef gka_value gka_time_t;
+typedef gka_subvalue_t gka_local_address_t;
+typedef gka_value_t gka_time_t;
 
 struct gka_mem_block {
-  gka_local_address next_available;
-  gka_subvalue allocated;
+  gka_local_address_t next_available;
+  gka_subvalue_t allocated;
   void *data;
 };
 
@@ -37,16 +37,14 @@ enum gka_transition_type {
 struct gka_entry {
   /* this is the set of values which determing if this is a sound, a segment, or
    * an indication to continue at another address */
-  head {
-    /* this is the indication of what type of entry it is, uses the gka_value_operand enum*/
-    gka_operand_t type;
-    /* this is the function identifier of the function used to smooth
-     transitions such as ease, it uses values fro gka_transition_type enum */
-    gka_operand_t transition;
-    /* this is the address of the first segmetn if it is a sound, or the next
-     * segment if this indidates to continue on at another address */
-    gka_local_address_t addr;
-  };
+  /* this is the indication of what type of entry it is, uses the gka_value_operand enum*/
+  gka_operand_t type;
+  /* this is the function identifier of the function used to smooth
+    transitions such as ease, it uses values fro gka_transition_type enum */
+  gka_operand_t transition;
+  /* this is the address of the first segmetn if it is a sound, or the next
+    * segment if this indidates to continue on at another address */
+  gka_local_address_t addr;
   union {
     /* this struct is used if it is a sound refering to child segments*/
     struct {
