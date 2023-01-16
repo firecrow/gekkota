@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 project(TestSegPattern VERSION 0.1)
 include(CTest)
 
+set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 add_library(compiler_flags INTERFACE)
 target_compile_features(compiler_flags INTERFACE cxx_std_17)
 

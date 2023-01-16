@@ -4,8 +4,11 @@
 using namespace std;
 #include "gekkota-external.h"
 #include "../common/test_common.h"
+
+extern "C" {
 #include "block-sound-mem/block-sound-mem.h"
 #include "segpattern.h"
+}
 
 namespace GekkotaTest {
 
@@ -13,6 +16,55 @@ class GkaSegPatternFixture : public testing::Test {
 protected:
   GkaSegPatternFixture() {}
 };
+
+TEST_F(GkaSegPatternFixture, MemBlockTests) {
+  cout << "\x1b[33mrunning test\x1b[0m" << endl;
+
+  char id1 = 1;
+  char id2 = 2;
+  char id3 = 3;
+
+  typedef char chars24arr[24];
+
+  // clang-format off
+  char threeSegs[] = {
+    id1,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+
+    id2,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+
+    id3,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0
+  };
+  // clang-format on
+
+  struct gka_mem_block _m;
+  _m.data = (struct gka_mem_block *)&threeSegs;
+  _m.allocated = sizeof(struct gka_mem_block) * 3;
+  _m.next_available = 0;
+  struct gka_mem_block *m = &_m;
+
+  gka_local_address_t t;
+  struct gka_entry *s;
+
+  cout << "\x1b[34malloc\x1b[0m" << endl;
+  t = gka_allocate_space(m, (gka_local_address_t)sizeof(struct gka_entry));
+  EXPECT_EQ(t, 0) << "address should be the first one";
+
+  cout << "\x1b[34mpointer\x1b[0m" << endl;
+  s = gka_pointer(m, t);
+  EXPECT_EQ(
+      s->type, id1
+  ) << "Expect the first block to have the id of the first test data";
+
+  cout << "\x1b[34mnext allocated pointer\x1b[0m" << endl;
+  EXPECT_EQ(m->next_available, gka_to_local(m, s) + sizeof(struct gka_entry))
+      << "Expect the next available to be the next neighbor";
+}
 
 /*
 TEST_F(GkaSegPatternFixture, AddSegsToPattern) {

@@ -5,10 +5,11 @@
 #define GKA_SUCCESS 0
 #define GKA_MEMORY_FAILURE 7
 
+typedef uint64_t gka_global_t;
 typedef uint64_t gka_value_t;
 typedef double gka_decimal_t;
 typedef uint32_t gka_subvalue_t;
-typedef uint16_t gka_operand_t;
+typedef char gka_operand_t;
 typedef gka_subvalue_t gka_local_address_t;
 typedef gka_value_t gka_time_t;
 
@@ -40,6 +41,7 @@ struct gka_entry {
    * an indication to continue at another address 
    * this is the indication of what type of entry it is, uses the gka_value_operand enum*/
   gka_operand_t type;
+  gka_operand_t subtype;
   /* this is the function identifier of the function used to smooth
     transitions such as ease, it uses values fro gka_transition_type enum */
   gka_operand_t transition;
@@ -60,5 +62,6 @@ struct gka_entry {
   } values;
 };
 
+gka_local_address_t gka_to_local(struct gka_mem_block *blk, struct gka_entry *entry);
 gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size);
-void *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);
+struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);
