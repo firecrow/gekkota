@@ -21,13 +21,11 @@ struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size){
 }
 
 gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_address_t size){
-    printf("space+\n");
     if(blk->next_available + size > blk->allocated){
             return GKA_BOUNDRY_ACTION; 
     } 
     gka_local_address_t next = blk->next_available;
     blk->next_available += size;
-    printf("alloc returning %ld\n", next);
     return next;
 }
 
@@ -36,7 +34,6 @@ gka_local_address_t gka_to_local(struct gka_mem_block *blk, struct gka_entry *en
 }
 
 struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp){
-    printf("blk:%ld localp:%ld\n", blk, localp);
     if(localp < 0 || localp > blk->allocated ){
         return GKA_BOUNDRY_ACTION;
     }

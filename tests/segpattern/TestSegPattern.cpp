@@ -83,7 +83,36 @@ TEST_F(GkaSegPatternFixture, SegmentCreateTests) {
   EXPECT_EQ(s->type, GKA_SEGMENT_VALUE) << "Expect first record k";
 }
 
-TEST_F(GkaSegPatternFixture, PatternCreateTests) {}
+TEST_F(GkaSegPatternFixture, PatternCreateTests) {
+  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+  gka_local_address_t t = gka_pattern_create(m);
+  struct gka_entry *p = gka_pointer(m, t);
+}
+
+TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
+  gka_time_t START = 0;
+  gka_decimal_t VALUE = 0.5;
+  gka_operand_t TRANSITION = GKA_CLIFF;
+
+  gka_time_t START2 = 100;
+  gka_decimal_t VALUE2 = 1.0;
+  gka_operand_t TRANSITION2 = GKA_LINEAR;
+
+  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+
+  gka_local_address_t t = gka_segment_create(m, START, VALUE, TRANSITION);
+
+  struct gka_entry _s;
+  _s.values.placement.start_time = START2;
+  _s.values.placement.value = VALUE2;
+  _s.transition = TRANSITION2;
+  gka_local_address_t t2 = gka_extend_segment(m, t, &_s);
+
+  struct gka_entry *s2 = gka_pointer(m, t2);
+  EXPECT_EQ(s2->values.placement.start_time, START2);
+  EXPECT_EQ(s2->values.placement.value, VALUE2);
+  EXPECT_EQ(s2->transition, TRANSITION2);
+}
 
 /*
 TEST_F(GkaSegPatternFixture, AddSegsToPattern) {

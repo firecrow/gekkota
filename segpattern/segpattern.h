@@ -24,7 +24,13 @@ gka_local_address_t gka_segment_create(
     struct gka_mem_block *blk, gka_value_t gotime, gka_decimal_t start_value,
     gka_operand_t ease
 );
-void gka_segpattern(struct gka_entry *_root);
+
+gka_local_address_t gka_pattern_create(struct gka_mem_block *blk);
+
+gka_local_address_t gka_extend_segment(
+    struct gka_mem_block *blk, gka_local_address_t current,
+    struct gka_entry *seg
+);
 
 void square_ease(
     double *progress, struct gka_entry *segment, double start, double end

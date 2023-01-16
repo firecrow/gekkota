@@ -103,21 +103,47 @@ gka_local_address_t gka_segment_create(
   return localp;
 }
 
+gka_local_address_t gka_pattern_create(struct gka_mem_block *blk) {
+  gka_local_address_t localp =
+      gka_allocate_space(blk, sizeof(struct gka_entry));
 
-int gka_extend_pattern(
-     struct gka_mem_block *blk, struct gka_entry *pattern, gka_local_address_t current, struct gka_entry *seg){
-  struct gka_entry *neighbour = gka_pointer(blk, current+sizeof(struct gka_entry));
-  struct gka_entry *next_neighbour = gka_pointer(blk, current+sizeof(struct gka_entry)*2);
-  if(neighbour->type != GKA_RESERVED_BY_NEIGHBOUR){
-    fprintf(stderr, "FATAL MEMORY CLOBBER");
+  if (localp == GKA_BOUNDRY_ACTION) {
+    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
+    return GKA_MEMORY_FAILURE;
+  }
+
+  printf("create pattern\n");
+
+  struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
+  s->type = GKA_SOUND;
+
+  return localp;
+}
+
+gka_local_address_t gka_extend_segment(
+     struct gka_mem_block *blk, gka_local_address_t current, struct gka_entry *seg){
+  gka_local_address_t neighbour_address = current+sizeof(struct gka_entry);
+  struct gka_entry *neighbour = gka_pointer(blk, neighbour_address);
+
+  gka_local_address_t next_neighbour_address = current+sizeof(struct gka_entry)*2;
+  struct gka_entry *next_neighbour = gka_pointer(blk, next_neighbour_address);
+
+  if(neighbour->type != GKA_UNSPECIFIED && neighbour->type != GKA_RESERVED_BY_NEIGHBOUR){
+    fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
     exit(1);
     return 0;
   }
   if(next_neighbour->type == GKA_UNSPECIFIED){
-    gka_local_address_t newlp = gka_segment_create(
-      blk, seg->values.placement.start_time, seg->values.placement.value, seg->transition);
+    printf("adding a new thing..............%lf\n", seg->values.placement.value);
+    
+    neighbour->values.placement.start_time = seg->values.placement.start_time;
+    neighbour->values.placement.value = seg->values.placement.value;
+    neighbour->transition = seg->transition;
+
     next_neighbour->type = GKA_RESERVED_BY_NEIGHBOUR;
+    return neighbour_address;
   }else{
+    printf("adding a LINK then thing..............\n");
     gka_local_address_t newlp = gka_create_link(blk, current);
     next_neighbour = gka_pointer(blk, newlp+sizeof(struct gka_entry));
     next_neighbour->type = GKA_RESERVED_BY_NEIGHBOUR;
@@ -127,6 +153,7 @@ int gka_extend_pattern(
     s->values.placement.start_time = seg->values.placement.start_time;
     s->values.placement.value = seg->values.placement.value;
     s->transition = seg->transition;
+    return newlp;
   }
 }
 
@@ -141,7 +168,7 @@ void gka_segpattern_add_segment(struct gka_mem_block *blk, struct gka_entry *pat
       current = next;
       next = gka_segpattern_get_next_segment(blk, (gka_local_address_t)((uint64_t)next - (uint64_t)blk));
     }
-    gka_extend_pattern(pattern, current, (gka_local_address_t)((uint64_t)seg - (uint64_t)next), (gka_local_address_t)((uint64_t)seg - (uint64_t)blk));
+   // gka_extend_segment(blk, current, segn - ext, seg - blk));
   }
 }
 

@@ -21,7 +21,6 @@ struct gka_mem_block {
   void *data;
 };
 
-
 enum gka_value_operand {
   GKA_UNSPECIFIED = 0,
   GKA_RESERVED_BY_NEIGHBOUR,
@@ -48,6 +47,7 @@ struct gka_entry {
   /* this is the function identifier of the function used to smooth
     transitions such as ease, it uses values fro gka_transition_type enum */
   gka_operand_t transition;
+  gka_operand_t _;
   /* this is the address of the first segmetn if it is a sound, or the next
     * segment if this indidates to continue on at another address */
   gka_local_address_t addr;
@@ -59,7 +59,7 @@ struct gka_entry {
     } schedule;
     /* this struct is used if it is a segment*/
     struct {
-      gka_value_t value;
+      gka_decimal_t value;
       gka_time_t start_time;
     } placement;
   } values;
