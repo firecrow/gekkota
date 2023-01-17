@@ -108,7 +108,6 @@ gka_local_address_t gka_pattern_create(struct gka_mem_block *blk) {
 
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->type = GKA_SOUND;
-  //gka_set_entry_status(blk, localp+sizeof(struct gka_entry), GKA_RESERVED_BY_NEIGHBOUR);
 
   return localp;
 }

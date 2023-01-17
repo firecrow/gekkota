@@ -179,9 +179,6 @@ TEST_F(GkaSegPatternFixture, PatternCreateTests) {
 }
 
 TEST_F(GkaSegPatternFixture, CollisionTests) {
-  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
-  gka_local_address_t t = gka_pattern_create(m);
-  struct gka_entry *p = gka_pointer(m, t);
 
   gka_time_t START = 0;
   gka_decimal_t VALUE = 0.5;
@@ -228,6 +225,10 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   gka_decimal_t P2_VALUE4 = 2.75;
   gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
 
+  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+  gka_local_address_t t = gka_pattern_create(m);
+  struct gka_entry *p = gka_pointer(m, t);
+
   struct gka_entry _s;
   _s.values.placement.start_time = START2;
   _s.values.placement.value = VALUE2;
@@ -261,7 +262,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
 
   // start adding a second pattern to the memblock
   gka_local_address_t p2t = gka_pattern_create(m);
-  struct gka_entry *p2 = gka_pointer(m, t);
+  struct gka_entry *p2 = gka_pointer(m, p2t);
 
   _s.values.placement.start_time = P2_START;
   _s.values.placement.value = P2_VALUE;
