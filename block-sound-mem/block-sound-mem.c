@@ -44,6 +44,22 @@ struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset){
     return gka_pointer(blk, sizeof(struct gka_entry)*offset);
 }
 
+gka_local_address_t gka_next_local(struct gka_mem_block *blk, gka_local_address_t localp){
+    gka_local_address_t next_would_be = localp + sizeof(struct gka_entry);
+    if(next_would_be > blk->allocated){
+        return GKA_BOUNDRY_ACTION; 
+    } 
+    return next_would_be;
+}
+
+struct gka_entry *gka_next(struct gka_mem_block *blk, gka_local_address_t localp){
+    gka_local_address_t next_would_be = gka_next_local(blk, localp);
+    if(next_would_be == GKA_BOUNDRY_ACTION){
+        return GKA_BOUNDRY_ACTION;
+    }
+    return gka_pointer(blk, next_would_be);
+}
+
 int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp){
     gka_local_address_t next_would_be = localp + sizeof(struct gka_entry);
     if(next_would_be > blk->allocated){

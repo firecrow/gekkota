@@ -57,10 +57,11 @@ gka_apply_transition(
   }
 }
 
-gka_local_address_t gka_segpattern_get_next_segment(struct gka_mem_block *blk, gka_local_address_t local_seg){
-  struct gka_entry *next = gka_pointer(blk, local_seg+sizeof(struct gka_entry));
+gka_local_address_t gka_segpattern_get_next_segment(struct gka_mem_block *blk, gka_local_address_t localp){
+  printf("getting next from %d........\n", localp);
+  struct gka_entry *next = gka_pointer(blk, localp+sizeof(struct gka_entry));
   if(next->type == GKA_SEGMENT_VALUE){
-    return next;
+    return gka_to_local(blk, next);
   }else if(next->type == GKA_NEXT_LOCAL){
     return next->addr;
   }
@@ -145,9 +146,6 @@ gka_local_address_t gka_extend_segment(
       exit(1);
       return 0;
     }
-
-    printf("adding a new thing..............%lf\n", seg->values.placement.value);
-    
     neighbour->values.placement.start_time = seg->values.placement.start_time;
     neighbour->values.placement.value = seg->values.placement.value;
     neighbour->transition = seg->transition;
@@ -170,18 +168,34 @@ gka_local_address_t gka_extend_segment(
   }
 }
 
-void gka_segpattern_add_segment(struct gka_mem_block *blk, struct gka_entry *pattern, struct gka_entry *seg) {
+gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
+  gka_local_address_t newlp = gka_next_local(blk, localp);
+  struct gka_entry *s = gka_pointer(blk, newlp);
+  if(s == GKA_BOUNDRY_ACTION){
+    fprintf(stderr, "Error getting next address %s:%d\n", __FILE__, __LINE__);
+    exit(1);
+  }
+  if(s->type == GKA_NEXT_LOCAL){
+    return s->addr;
+  }else if(s->type == type){
+    return newlp;
+  }
+  return GKA_BOUNDRY_ACTION;
+}
+
+gka_local_address_t gka_segpattern_add_segment(struct gka_mem_block *blk, struct gka_entry *pattern, struct gka_entry *seg) {
   if (pattern->addr == NULL) {
     pattern->addr = gka_segment_create(
       blk, seg->values.placement.start_time, seg->values.placement.value, seg->transition);
+    return pattern->addr;
   } else {
-    struct gka_entry *next = gka_pointer(blk, pattern->addr);
-    struct gka_entry *current = next;
-    while (next) {
+    gka_local_address_t next = pattern->addr;
+    gka_local_address_t current = next;
+    while(next){
       current = next;
-      next = gka_segpattern_get_next_segment(blk, (gka_local_address_t)((uint64_t)next - (uint64_t)blk));
+      next = gka_entry_next(blk, next, GKA_SEGMENT_VALUE);
     }
-   // gka_extend_segment(blk, current, segn - ext, seg - blk));
+    return gka_extend_segment(blk, current, seg);
   }
 }
 

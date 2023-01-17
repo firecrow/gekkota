@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* boundry action is not necessarliy bad it happens at the end of a block and at
+ * the end of a segment, both of which can happen naturally */
 #define GKA_BOUNDRY_ACTION 0
 #define GKA_SUCCESS 0
 #define GKA_MEMORY_FAILURE 7
@@ -71,3 +73,4 @@ gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_addr
 struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp);
 struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset);
 int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp);
+struct gka_entry *gka_next(struct gka_mem_block *blk, gka_local_address_t localp);
