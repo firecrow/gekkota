@@ -124,7 +124,7 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
 }
 
 TEST_F(GkaSegPatternFixture, PatternCreateTests) {
-  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+  struct gka_mem_block *m = gka_alloc_memblock(8 * sizeof(struct gka_entry));
   gka_local_address_t t = gka_pattern_create(m);
   struct gka_entry *p = gka_pointer(m, t);
 
@@ -157,9 +157,9 @@ TEST_F(GkaSegPatternFixture, PatternCreateTests) {
   _s.values.placement.start_time = START3;
   _s.values.placement.value = VALUE3;
   _s.transition = TRANSITION3;
-  gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, p, &_s);
 
-  s = gka_pointer(m, p->addr);
+  s = gka_pointer(m, t);
   EXPECT_EQ(s->values.placement.start_time, START3);
   EXPECT_EQ(s->values.placement.value, VALUE3);
   EXPECT_EQ(s->transition, TRANSITION3);
