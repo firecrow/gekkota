@@ -74,3 +74,4 @@ struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t loc
 struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset);
 int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp);
 struct gka_entry *gka_next(struct gka_mem_block *blk, gka_local_address_t localp);
+gka_local_address_t gka_next_local(struct gka_mem_block *blk, gka_local_address_t localp);

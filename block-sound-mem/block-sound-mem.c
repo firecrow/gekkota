@@ -12,6 +12,8 @@ struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size){
     fprintf(stderr, "Error allocating memory %s:%d", __FILE__, __LINE__);
     exit(1);
   }
+
+  memset(m->data, 0, size);
   m->allocated = size;
 
   // reserve first slot
