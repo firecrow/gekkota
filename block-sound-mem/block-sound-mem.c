@@ -32,7 +32,7 @@ gka_local_address_t gka_allocate_space(struct gka_mem_block *blk, gka_local_addr
 }
 
 gka_local_address_t gka_to_local(struct gka_mem_block *blk, struct gka_entry *entry){
-    return ((gka_global_t)blk->data) - (gka_global_t)entry;
+    return (gka_global_t)entry - ((gka_global_t)blk->data);
 }
 
 struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t localp){
