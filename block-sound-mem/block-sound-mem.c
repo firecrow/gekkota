@@ -64,7 +64,6 @@ struct gka_entry *gka_next(struct gka_mem_block *blk, gka_local_address_t localp
 
 int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp){
     gka_local_address_t next_would_be = localp + sizeof(struct gka_entry);
-    printf("claim.... %ld/%ld %ld\n", next_would_be, blk->allocated, blk->allocated/sizeof(struct gka_entry));
     if(next_would_be > blk->allocated){
         return GKA_BOUNDRY_ACTION; 
     } 
