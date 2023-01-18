@@ -157,7 +157,6 @@ gka_local_address_t gka_extend_segment(
 }
 
 gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
-  printf("gka_entry_next for...%ld\n", localp);
   gka_local_address_t newlp = gka_next_local(blk, localp);
   if(newlp == GKA_BOUNDRY_ACTION){
     fprintf(stderr, "Error getting next address %s:%d\n", __FILE__, __LINE__);
@@ -165,10 +164,8 @@ gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_
   }
   struct gka_entry *s = gka_pointer(blk, newlp);
   if(s->type == GKA_NEXT_LOCAL){
-    printf("\x1b[36mreturning link\x1b[0m\n");
     return s->addr;
   }else if(s->type == type){
-    printf("\x1b[36mreturning normal\x1b[0m\n");
     return newlp;
   }
   return GKA_BOUNDRY_ACTION;
@@ -192,12 +189,10 @@ gka_local_address_t gka_segpattern_add_segment(struct gka_mem_block *blk, struct
 
 struct gka_entry *
 gka_segment_from_pattern(struct gka_mem_block *blk, struct gka_entry *pattern, gka_time_t offset) {
-  printf("from pattern...\n");
   struct gka_entry *next = gka_pointer(blk, pattern->addr);
   struct gka_entry *current = next;
   gka_local_address_t nextlp = 0;
   while (next && next->values.placement.start_time < offset) {
-    printf("nextlp1 %ld\n", nextlp);
     current = next;
     nextlp = gka_entry_next(blk, gka_to_local(blk, next), GKA_SEGMENT_VALUE);
     if(nextlp == GKA_BOUNDRY_ACTION){
