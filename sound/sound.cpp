@@ -1,70 +1,73 @@
 #include "../gekkota.h"
 
-GkaSound::GkaSound(
-    gka_segpattern *freq, gka_segpattern *volume, gka_segpattern *distortion
+gka_local_address_t gka_sound_create(
+    gka_mem_block *blk, gka_local_address_t freq, gka_local_address_t volume,
+    gka_local_address_t distortion, gka_local_address_t shape
 ) {
-  this->phase = 0.0;
-  this->step = 0.0;
-  this->volume_last = 0.0;
-  this->freq = freq;
-  this->volume = volume;
-  this->distortion = distortion;
-}
 
-GkaSoundRepeat::GkaSoundRepeat(gka_timeint start, gka_timeint repeat_every) {
-  this->start = start;
-  this->time = repeat_every;
-}
+  gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
 
-GkaSoundEvent::GkaSoundEvent(
-    vector<GkaSound *> soundg, gka_timeint gotime, GkaSoundRepeat *repeat
+  if (localp == GKA_BOUNDRY_ACTION) {
+    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
+    return GKA_MEMORY_FAILURE;
+  }
+
+  struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
+  s->values.sound.freq = freq;
+  s->values.sound.volume = volume;
+  s->values.sound.distortion = distortion;
+  s->values.sound.shape = shape;
+  s->type = GKA_SOUND;
+};
+
+gka_local_address_t gka_sound_event_create(
+    gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
+    gka_time_t repeat
 ) {
-  this->soundg = soundg;
-  this->repeat = repeat;
-  this->gotime = gotime;
+  gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
+
+  if (localp == GKA_BOUNDRY_ACTION) {
+    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
+    return GKA_MEMORY_FAILURE;
+  }
+
+  struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
+  s->values.event.start = start;
+  s->values.event.repeat = repeat;
+  s->type = GKA_SOUND_EVENT;
 }
 
-GkaSoundEvent::GkaSoundEvent(vector<GkaSound *> soundg, gka_timeint gotime) {
-  this->soundg = soundg;
-  this->gotime = gotime;
+gka_value_t gka_get_frame_value_from_event(
+    gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
+    gka_time_t local, const long rate
+) {
 
-  this->repeat = 0;
-}
-
-double
-GkaSoundEvent::getFrameValue(gka_timeint start, gka_timeint local, long rate) {
-
+  gka_local_address_t soundlp = event->values.event.sounds;
   double base = 1.0;
   double value = 0.0;
-  for (GkaSound *s : this->soundg) {
+  while (soundlp) {
     double position = local - start;
+    struct gka_entry *s = gka_pointer(blk, soundlp);
 
-    double freq = value_from_segment(s->freq, base, position);
-    double volume = value_from_segment(s->volume, base, position);
+    double freq = value_from_segment(blk, s->values.sound.freq, base, position);
+    double volume =
+        value_from_segment(blk, s->values.sound.volume, base, position);
 
     if (volume > 1.0 || volume < 0.0) {
-      cout << "ERROR WITH VOLUMNE" << volume << endl;
+      printf("ERROR WITH VOLUME:%lf\n", volume);
       volume = 1.0;
     }
 
-    s->step = MAX_PHASE * freq / (double)rate;
+    value = (sin(s->values.sound.phase) * volume);
 
-    value = (sin(s->phase) * volume);
-
-    s->phase += s->step;
-    if (s->phase >= MAX_PHASE) {
-      printf("removnig\n");
-      s->phase -= MAX_PHASE;
+    // reconcile phase for next time
+    s->values.sound.step = MAX_PHASE * freq / (double)rate;
+    s->values.sound.phase += s->values.sound.step;
+    if (s->values.sound.phase >= MAX_PHASE) {
+      s->values.sound.phase -= MAX_PHASE;
     }
+    // increment to next sound
+    soundlp = gka_entry_next(blk, soundlp, GKA_SOUND);
   }
   return value;
-}
-
-void GkaSoundEvent::fadeOut(long position_duration, gka_timeint local) {
-  cout << "fade out called" << endl;
-
-  for (GkaSound *s : this->soundg) {
-    cout << "updating sound" << endl;
-    s->volume->root = new gka_segment(0.0, 0.0, &linear_ease);
-  }
 }

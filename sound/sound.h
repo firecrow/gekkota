@@ -1,34 +1,19 @@
+#include "../block-sound-mem/block-sound-mem.h"
+#include "../segpattern/segpattern.h"
+
 #define MAX_PHASE 2. * M_PI
 
-struct GkaSound {
-  struct gka_segpattern *freq;
-  struct gka_segpattern *volume;
-  struct gka_segpattern *shape;
-  struct gka_segpattern *distortion;
-  double phase;
-  double step;
-  double volume_last;
+gka_local_address_t gka_sound_create(
+    gka_mem_block *blk, gka_local_address_t freq, gka_local_address_t volume,
+    gka_local_address_t distortion, gka_local_address_t shape
+);
 
-  GkaSound(
-      gka_segpattern *freq, gka_segpattern *volume, gka_segpattern *distortion
-  );
-};
+gka_local_address_t gka_sound_event_create(
+    gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
+    gka_time_t repeat
+);
 
-struct GkaSoundRepeat {
-  gka_timeint start;
-  gka_timeint time;
-  GkaSoundRepeat(gka_timeint start, gka_timeint repeat_every);
-};
-
-struct GkaSoundEvent {
-  vector<GkaSound *> soundg;
-  gka_timeint gotime;
-  GkaSoundRepeat *repeat;
-
-  GkaSoundEvent(
-      vector<GkaSound *> soundg, gka_timeint gotime, GkaSoundRepeat *repeat
-  );
-  GkaSoundEvent(vector<GkaSound *> soundg, gka_timeint gotime);
-  double getFrameValue(gka_timeint start, gka_timeint local, const long rate);
-  void fadeOut(long position_duration, gka_timeint local);
-};
+gka_value_t gka_get_frame_value_from_event(
+    gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
+    gka_time_t local, const long rate
+);
