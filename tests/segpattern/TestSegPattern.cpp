@@ -13,9 +13,153 @@ extern "C" {
 
 namespace GekkotaTest {
 
+/* two patterns is enough to test overlap and collisions*/
+class TwoPatternBlock {
+public:
+  struct gka_entry *p1;
+  struct gka_entry *p2;
+  struct gka_mem_block *m;
+
+  TwoPatternBlock(
+      struct gka_mem_block *m, struct gka_entry *p1, struct gka_entry *p2
+  ) {
+    this->m = m;
+    this->p1 = p1;
+    this->p2 = p2;
+  }
+};
+
 class GkaSegPatternFixture : public testing::Test {
+public:
+  static TwoPatternBlock *generateBasicBlockOfSegments() {
+    gka_time_t START = 0;
+    gka_decimal_t VALUE = 0.5;
+    gka_operand_t TRANSITION = GKA_CLIFF;
+
+    gka_time_t START2 = 100;
+    gka_decimal_t VALUE2 = 1.0;
+    gka_operand_t TRANSITION2 = GKA_LINEAR;
+
+    gka_time_t START3 = 200;
+    gka_decimal_t VALUE3 = 1.5;
+    gka_operand_t TRANSITION3 = GKA_LINEAR;
+
+    gka_time_t START4 = 300;
+    gka_decimal_t VALUE4 = 1.75;
+    gka_operand_t TRANSITION4 = GKA_LINEAR;
+
+    gka_time_t START5 = 400;
+    gka_decimal_t VALUE5 = 1.85;
+    gka_operand_t TRANSITION5 = GKA_LINEAR;
+
+    gka_time_t START6 = 500;
+    gka_decimal_t VALUE6 = 1.95;
+    gka_operand_t TRANSITION6 = GKA_LINEAR;
+
+    gka_time_t START7 = 600;
+    gka_decimal_t VALUE7 = 1.99;
+    gka_operand_t TRANSITION7 = GKA_LINEAR;
+
+    // second pattern tests
+    gka_time_t P2_START = 0;
+    gka_decimal_t P2_VALUE = 2.0;
+    gka_operand_t P2_TRANSITION = GKA_CLIFF;
+
+    gka_time_t P2_START2 = 100;
+    gka_decimal_t P2_VALUE2 = 2.1;
+    gka_operand_t P2_TRANSITION2 = GKA_LINEAR;
+
+    gka_time_t P2_START3 = 200;
+    gka_decimal_t P2_VALUE3 = 2.5;
+    gka_operand_t P2_TRANSITION3 = GKA_LINEAR;
+
+    gka_time_t P2_START4 = 300;
+    gka_decimal_t P2_VALUE4 = 2.75;
+    gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
+
+    struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+    gka_local_address_t t = gka_pattern_create(m);
+    struct gka_entry *p = gka_pointer(m, t);
+
+    struct gka_entry _s;
+    _s.values.segment.start_time = START2;
+    _s.values.segment.value = VALUE2;
+    _s.values.segment.transition = TRANSITION2;
+
+    gka_segpattern_add_segment(m, p, &_s);
+    struct gka_entry *s = gka_pointer(m, p->values.pattern.addr);
+
+    _s.values.segment.start_time = START3;
+    _s.values.segment.value = VALUE3;
+    _s.values.segment.transition = TRANSITION3;
+    t = gka_segpattern_add_segment(m, p, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = START4;
+    _s.values.segment.value = VALUE4;
+    _s.values.segment.transition = TRANSITION4;
+    t = gka_segpattern_add_segment(m, p, &_s);
+
+    s = gka_pointer(m, t);
+
+    // start adding a second pattern to the memblock
+    gka_local_address_t p2t = gka_pattern_create(m);
+    struct gka_entry *p2 = gka_pointer(m, p2t);
+
+    _s.values.segment.start_time = P2_START;
+    _s.values.segment.value = P2_VALUE;
+    _s.values.segment.transition = P2_TRANSITION;
+    t = gka_segpattern_add_segment(m, p2, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = P2_START2;
+    _s.values.segment.value = P2_VALUE2;
+    _s.values.segment.transition = P2_TRANSITION2;
+    t = gka_segpattern_add_segment(m, p2, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = P2_START3;
+    _s.values.segment.value = P2_VALUE3;
+    _s.values.segment.transition = P2_TRANSITION3;
+    t = gka_segpattern_add_segment(m, p2, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = P2_START4;
+    _s.values.segment.value = P2_VALUE4;
+    _s.values.segment.transition = P2_TRANSITION4;
+    t = gka_segpattern_add_segment(m, p2, &_s);
+
+    s = gka_pointer(m, t);
+
+    // add more back from the original pattern now to cause a segment
+    _s.values.segment.start_time = START5;
+    _s.values.segment.value = VALUE5;
+    _s.values.segment.transition = TRANSITION5;
+    t = gka_segpattern_add_segment(m, p, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = START6;
+    _s.values.segment.value = VALUE6;
+    _s.values.segment.transition = TRANSITION6;
+    t = gka_segpattern_add_segment(m, p, &_s);
+
+    s = gka_pointer(m, t);
+
+    _s.values.segment.start_time = START7;
+    _s.values.segment.value = VALUE7;
+    _s.values.segment.transition = TRANSITION7;
+    t = gka_segpattern_add_segment(m, p, &_s);
+
+    return new TwoPatternBlock(m, p, p2);
+  }
+
 protected:
-  GkaSegPatternFixture() {}
+  GkaSegPatternFixture(){};
 };
 
 TEST_F(GkaSegPatternFixture, EntrySizeIsAccurateTests) {
@@ -345,279 +489,36 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
 }
 
 TEST_F(GkaSegPatternFixture, SegmentFromSegmentTests) {
-  gka_time_t START = 0;
-  gka_decimal_t VALUE = 0.5;
-  gka_operand_t TRANSITION = GKA_CLIFF;
 
-  gka_time_t START2 = 100;
-  gka_decimal_t VALUE2 = 1.0;
-  gka_operand_t TRANSITION2 = GKA_LINEAR;
+  TwoPatternBlock *b = GkaSegPatternFixture::generateBasicBlockOfSegments();
 
-  gka_time_t START3 = 200;
-  gka_decimal_t VALUE3 = 1.5;
-  gka_operand_t TRANSITION3 = GKA_LINEAR;
-
-  gka_time_t START4 = 300;
-  gka_decimal_t VALUE4 = 1.75;
-  gka_operand_t TRANSITION4 = GKA_LINEAR;
-
-  gka_time_t START5 = 400;
-  gka_decimal_t VALUE5 = 1.85;
-  gka_operand_t TRANSITION5 = GKA_LINEAR;
-
-  gka_time_t START6 = 500;
-  gka_decimal_t VALUE6 = 1.95;
-  gka_operand_t TRANSITION6 = GKA_LINEAR;
-
-  gka_time_t START7 = 600;
-  gka_decimal_t VALUE7 = 1.99;
-  gka_operand_t TRANSITION7 = GKA_LINEAR;
-
-  // second pattern tests
-  gka_time_t P2_START = 0;
-  gka_decimal_t P2_VALUE = 2.0;
-  gka_operand_t P2_TRANSITION = GKA_CLIFF;
-
-  gka_time_t P2_START2 = 100;
-  gka_decimal_t P2_VALUE2 = 2.1;
-  gka_operand_t P2_TRANSITION2 = GKA_LINEAR;
-
-  gka_time_t P2_START3 = 200;
-  gka_decimal_t P2_VALUE3 = 2.5;
-  gka_operand_t P2_TRANSITION3 = GKA_LINEAR;
-
-  gka_time_t P2_START4 = 300;
-  gka_decimal_t P2_VALUE4 = 2.75;
-  gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
-
-  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
-  gka_local_address_t t = gka_pattern_create(m);
-  struct gka_entry *p = gka_pointer(m, t);
-
-  struct gka_entry _s;
-  _s.values.segment.start_time = START2;
-  _s.values.segment.value = VALUE2;
-  _s.values.segment.transition = TRANSITION2;
-
-  gka_segpattern_add_segment(m, p, &_s);
-  struct gka_entry *s = gka_pointer(m, p->values.pattern.addr);
-
-  _s.values.segment.start_time = START3;
-  _s.values.segment.value = VALUE3;
-  _s.values.segment.transition = TRANSITION3;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START4;
-  _s.values.segment.value = VALUE4;
-  _s.values.segment.transition = TRANSITION4;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  // start adding a second pattern to the memblock
-  gka_local_address_t p2t = gka_pattern_create(m);
-  struct gka_entry *p2 = gka_pointer(m, p2t);
-
-  _s.values.segment.start_time = P2_START;
-  _s.values.segment.value = P2_VALUE;
-  _s.values.segment.transition = P2_TRANSITION;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START2;
-  _s.values.segment.value = P2_VALUE2;
-  _s.values.segment.transition = P2_TRANSITION2;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START3;
-  _s.values.segment.value = P2_VALUE3;
-  _s.values.segment.transition = P2_TRANSITION3;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START4;
-  _s.values.segment.value = P2_VALUE4;
-  _s.values.segment.transition = P2_TRANSITION4;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  // add more back from the original pattern now to cause a segment
-  _s.values.segment.start_time = START5;
-  _s.values.segment.value = VALUE5;
-  _s.values.segment.transition = TRANSITION5;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START6;
-  _s.values.segment.value = VALUE6;
-  _s.values.segment.transition = TRANSITION6;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START7;
-  _s.values.segment.value = VALUE7;
-  _s.values.segment.transition = TRANSITION7;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-  struct gka_entry *ep0_0 = gka_segment_from_pattern(m, p, 0);
-  struct gka_entry *ep0_100 = gka_segment_from_pattern(m, p, 100);
-  struct gka_entry *ep0_201 = gka_segment_from_pattern(m, p, 201);
-  struct gka_entry *ep0_555 = gka_segment_from_pattern(m, p, 555);
+  struct gka_entry *ep0_0 = gka_segment_from_pattern(b->m, b->p1, 0);
+  struct gka_entry *ep0_100 = gka_segment_from_pattern(b->m, b->p1, 100);
+  struct gka_entry *ep0_201 = gka_segment_from_pattern(b->m, b->p1, 201);
+  struct gka_entry *ep0_555 = gka_segment_from_pattern(b->m, b->p1, 555);
 
   EXPECT_EQ(ep0_0->values.segment.value, 1.0);
   EXPECT_EQ(ep0_100->values.segment.value, 1.0);
   EXPECT_EQ(ep0_201->values.segment.value, 1.5);
   EXPECT_EQ(ep0_555->values.segment.value, 1.95);
 
-  struct gka_entry *ep2_100 = gka_segment_from_pattern(m, p2, 100);
-  struct gka_entry *ep2_375 = gka_segment_from_pattern(m, p2, 375);
+  struct gka_entry *ep2_100 = gka_segment_from_pattern(b->m, b->p2, 100);
+  struct gka_entry *ep2_375 = gka_segment_from_pattern(b->m, b->p2, 375);
   EXPECT_EQ(ep2_100->values.segment.value, 2.0);
   EXPECT_EQ(ep2_375->values.segment.value, 2.75);
-
-  test_print_mem_block(m);
 }
 
 TEST_F(GkaSegPatternFixture, ValueFromSegmentTests) {
-  gka_time_t START = 0;
-  gka_decimal_t VALUE = 0.5;
-  gka_operand_t TRANSITION = GKA_CLIFF;
+  TwoPatternBlock *b = GkaSegPatternFixture::generateBasicBlockOfSegments();
 
-  gka_time_t START2 = 100;
-  gka_decimal_t VALUE2 = 1.0;
-  gka_operand_t TRANSITION2 = GKA_LINEAR;
+  test_print_mem_block(b->m);
+  EXPECT_EQ(value_from_segment(b->m, b->p1, 1.0, 0), 1.0);
+  EXPECT_TRUE(FuzzyMatch(value_from_segment(b->m, b->p1, 1.0, 150), 1.0, 1.5));
+  EXPECT_TRUE(FuzzyMatch(value_from_segment(b->m, b->p1, 1.0, 440), 1.85, 1.95)
+  );
+  EXPECT_EQ(value_from_segment(b->m, b->p1, 1.0, 1000), 1.99);
 
-  gka_time_t START3 = 200;
-  gka_decimal_t VALUE3 = 1.5;
-  gka_operand_t TRANSITION3 = GKA_LINEAR;
-
-  gka_time_t START4 = 300;
-  gka_decimal_t VALUE4 = 1.75;
-  gka_operand_t TRANSITION4 = GKA_LINEAR;
-
-  gka_time_t START5 = 400;
-  gka_decimal_t VALUE5 = 1.85;
-  gka_operand_t TRANSITION5 = GKA_LINEAR;
-
-  gka_time_t START6 = 500;
-  gka_decimal_t VALUE6 = 1.95;
-  gka_operand_t TRANSITION6 = GKA_LINEAR;
-
-  gka_time_t START7 = 600;
-  gka_decimal_t VALUE7 = 1.99;
-  gka_operand_t TRANSITION7 = GKA_LINEAR;
-
-  // second pattern tests
-  gka_time_t P2_START = 0;
-  gka_decimal_t P2_VALUE = 2.0;
-  gka_operand_t P2_TRANSITION = GKA_CLIFF;
-
-  gka_time_t P2_START2 = 100;
-  gka_decimal_t P2_VALUE2 = 2.1;
-  gka_operand_t P2_TRANSITION2 = GKA_LINEAR;
-
-  gka_time_t P2_START3 = 200;
-  gka_decimal_t P2_VALUE3 = 2.5;
-  gka_operand_t P2_TRANSITION3 = GKA_LINEAR;
-
-  gka_time_t P2_START4 = 300;
-  gka_decimal_t P2_VALUE4 = 2.75;
-  gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
-
-  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
-  gka_local_address_t t = gka_pattern_create(m);
-  struct gka_entry *p = gka_pointer(m, t);
-
-  struct gka_entry _s;
-  _s.values.segment.start_time = START2;
-  _s.values.segment.value = VALUE2;
-  _s.values.segment.transition = TRANSITION2;
-
-  gka_segpattern_add_segment(m, p, &_s);
-  struct gka_entry *s = gka_pointer(m, p->values.pattern.addr);
-
-  _s.values.segment.start_time = START3;
-  _s.values.segment.value = VALUE3;
-  _s.values.segment.transition = TRANSITION3;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START4;
-  _s.values.segment.value = VALUE4;
-  _s.values.segment.transition = TRANSITION4;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  // start adding a second pattern to the memblock
-  gka_local_address_t p2t = gka_pattern_create(m);
-  struct gka_entry *p2 = gka_pointer(m, p2t);
-
-  _s.values.segment.start_time = P2_START;
-  _s.values.segment.value = P2_VALUE;
-  _s.values.segment.transition = P2_TRANSITION;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START2;
-  _s.values.segment.value = P2_VALUE2;
-  _s.values.segment.transition = P2_TRANSITION2;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START3;
-  _s.values.segment.value = P2_VALUE3;
-  _s.values.segment.transition = P2_TRANSITION3;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = P2_START4;
-  _s.values.segment.value = P2_VALUE4;
-  _s.values.segment.transition = P2_TRANSITION4;
-  t = gka_segpattern_add_segment(m, p2, &_s);
-
-  s = gka_pointer(m, t);
-
-  // add more back from the original pattern now to cause a segment
-  _s.values.segment.start_time = START5;
-  _s.values.segment.value = VALUE5;
-  _s.values.segment.transition = TRANSITION5;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START6;
-  _s.values.segment.value = VALUE6;
-  _s.values.segment.transition = TRANSITION6;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  s = gka_pointer(m, t);
-
-  _s.values.segment.start_time = START7;
-  _s.values.segment.value = VALUE7;
-  _s.values.segment.transition = TRANSITION7;
-  t = gka_segpattern_add_segment(m, p, &_s);
-
-  test_print_mem_block(m);
-  EXPECT_EQ(value_from_segment(m, p, 1.0, 0), 1.0);
-  EXPECT_TRUE(FuzzyMatch(value_from_segment(m, p, 1.0, 150), 1.0, 1.5));
-  EXPECT_TRUE(FuzzyMatch(value_from_segment(m, p, 1.0, 440), 1.85, 1.95));
-  EXPECT_EQ(value_from_segment(m, p, 1.0, 1000), 1.99);
-
-  EXPECT_EQ(value_from_segment(m, p2, 1.0, 0), 2.0);
+  EXPECT_EQ(value_from_segment(b->m, b->p2, 1.0, 0), 2.0);
 }
 
 } // namespace GekkotaTest
