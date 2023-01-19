@@ -143,8 +143,9 @@ TEST_F(GkaSegPatternFixture, EntrySizeIsAccurateTests) {
   EXPECT_EQ(sizeof(struct gka_entry), GKA_SEGMENT_SIZE);
 }
 
-/*
 TEST_F(GkaSegPatternFixture, MemBlockTests) {
+
+  cout << GKA_SEGMENT_SIZE << endl;
 
   char id1 = 1;
   char id2 = 2;
@@ -157,14 +158,20 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
     id1,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,
 
     id2,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,
 
     id3,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,
   };
   // clang-format on
 
@@ -253,8 +260,8 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
 
 TEST_F(GkaSegPatternFixture, PatternCreateTests) {
   struct gka_mem_block *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
-  gka_local_address_t t = gka_pattern_create(m);
-  struct gka_entry *p = gka_pointer(m, t);
+  struct gka_entry _s;
+  gka_local_address_t t, r;
 
   gka_time_t START = 0;
   gka_decimal_t VALUE = 0.5;
@@ -272,15 +279,12 @@ TEST_F(GkaSegPatternFixture, PatternCreateTests) {
   gka_decimal_t VALUE4 = 1.75;
   gka_operand_t TRANSITION4 = GKA_LINEAR;
 
-  struct gka_entry _s;
-  _s.values.segment.start_time = START2;
-  _s.values.segment.value = VALUE2;
-  _s.values.segment.transition = TRANSITION2;
-  gka_local_address_t t2 = gka_extend_segment(m, t, &_s);
+  r = gka_segment_create(m, START2, VALUE2, TRANSITION2);
+  t = r;
 
-  gka_segpattern_add_segment(m, p, &_s);
-  struct gka_entry *s = gka_pointer(m, p->values.pattern.addr);
-  cout << gka_to_local(m, s) / GKA_SEGMENT_SIZE << endl;
+  gka_segpattern_add_segment(m, r, &_s);
+  struct gka_entry *s = gka_pointer(m, t);
+
   EXPECT_EQ(s->values.segment.start_time, START2);
   EXPECT_EQ(s->values.segment.value, VALUE2);
   EXPECT_EQ(s->values.segment.transition, TRANSITION2);
@@ -288,7 +292,7 @@ TEST_F(GkaSegPatternFixture, PatternCreateTests) {
   _s.values.segment.start_time = START3;
   _s.values.segment.value = VALUE3;
   _s.values.segment.transition = TRANSITION3;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START3);
@@ -298,14 +302,13 @@ TEST_F(GkaSegPatternFixture, PatternCreateTests) {
   _s.values.segment.start_time = START4;
   _s.values.segment.value = VALUE4;
   _s.values.segment.transition = TRANSITION4;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START4);
   EXPECT_EQ(s->values.segment.value, VALUE4);
   EXPECT_EQ(s->values.segment.transition, TRANSITION4);
 }
-
 TEST_F(GkaSegPatternFixture, CollisionTests) {
 
   gka_time_t START = 0;
@@ -354,16 +357,12 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
 
   struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
-  gka_local_address_t t = gka_pattern_create(m);
-  struct gka_entry *p = gka_pointer(m, t);
 
   struct gka_entry _s;
-  _s.values.segment.start_time = START2;
-  _s.values.segment.value = VALUE2;
-  _s.values.segment.transition = TRANSITION2;
+  gka_local_address_t r = gka_segment_create(m, START2, VALUE2, TRANSITION2);
+  gka_local_address_t t;
 
-  gka_segpattern_add_segment(m, p, &_s);
-  struct gka_entry *s = gka_pointer(m, p->values.pattern.addr);
+  struct gka_entry *s = gka_pointer(m, r);
   EXPECT_EQ(s->values.segment.start_time, START2);
   EXPECT_EQ(s->values.segment.value, VALUE2);
   EXPECT_EQ(s->values.segment.transition, TRANSITION2);
@@ -371,7 +370,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = START3;
   _s.values.segment.value = VALUE3;
   _s.values.segment.transition = TRANSITION3;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START3);
@@ -381,7 +380,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = START4;
   _s.values.segment.value = VALUE4;
   _s.values.segment.transition = TRANSITION4;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START4);
@@ -389,15 +388,11 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   EXPECT_EQ(s->values.segment.transition, TRANSITION4);
 
   // start adding a second pattern to the memblock
-  gka_local_address_t p2t = gka_pattern_create(m);
-  struct gka_entry *p2 = gka_pointer(m, p2t);
 
-  _s.values.segment.start_time = P2_START;
-  _s.values.segment.value = P2_VALUE;
-  _s.values.segment.transition = P2_TRANSITION;
-  t = gka_segpattern_add_segment(m, p2, &_s);
+  gka_local_address_t r2 =
+      gka_segment_create(m, P2_START, P2_VALUE, P2_TRANSITION);
 
-  s = gka_pointer(m, t);
+  s = gka_pointer(m, r2);
   EXPECT_EQ(s->values.segment.start_time, P2_START);
   EXPECT_EQ(s->values.segment.value, P2_VALUE);
   EXPECT_EQ(s->values.segment.transition, P2_TRANSITION);
@@ -405,7 +400,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = P2_START2;
   _s.values.segment.value = P2_VALUE2;
   _s.values.segment.transition = P2_TRANSITION2;
-  t = gka_segpattern_add_segment(m, p2, &_s);
+  t = gka_segpattern_add_segment(m, r2, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, P2_START2);
@@ -415,7 +410,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = P2_START3;
   _s.values.segment.value = P2_VALUE3;
   _s.values.segment.transition = P2_TRANSITION3;
-  t = gka_segpattern_add_segment(m, p2, &_s);
+  t = gka_segpattern_add_segment(m, r2, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, P2_START3);
@@ -425,7 +420,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = P2_START4;
   _s.values.segment.value = P2_VALUE4;
   _s.values.segment.transition = P2_TRANSITION4;
-  t = gka_segpattern_add_segment(m, p2, &_s);
+  t = gka_segpattern_add_segment(m, r2, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, P2_START4);
@@ -436,7 +431,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = START5;
   _s.values.segment.value = VALUE5;
   _s.values.segment.transition = TRANSITION5;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START5);
@@ -446,7 +441,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = START6;
   _s.values.segment.value = VALUE6;
   _s.values.segment.transition = TRANSITION6;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START6);
@@ -456,7 +451,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   _s.values.segment.start_time = START7;
   _s.values.segment.value = VALUE7;
   _s.values.segment.transition = TRANSITION7;
-  t = gka_segpattern_add_segment(m, p, &_s);
+  t = gka_segpattern_add_segment(m, r, &_s);
 
   s = gka_pointer(m, t);
   EXPECT_EQ(s->values.segment.start_time, START7);
@@ -486,13 +481,10 @@ TEST_F(GkaSegPatternFixture, SegmentFromSegmentTests) {
   EXPECT_EQ(ep2_375->values.segment.value, 2.75);
 }
 
-*/
 TEST_F(GkaSegPatternFixture, ValueFromSegmentTests) {
   TwoPatternBlock *b = GkaSegPatternFixture::generateBasicBlockOfSegments();
   test_print_mem_block(b->m);
-  /*
 
-  test_print_mem_block(b->m);
   EXPECT_EQ(value_from_segment(b->m, b->p1, 1.0, 0), 1.0);
   EXPECT_TRUE(FuzzyMatch(value_from_segment(b->m, b->p1, 1.0, 150), 1.0, 1.5));
   EXPECT_TRUE(FuzzyMatch(value_from_segment(b->m, b->p1, 1.0, 440), 1.85, 1.95)
@@ -500,7 +492,6 @@ TEST_F(GkaSegPatternFixture, ValueFromSegmentTests) {
   EXPECT_EQ(value_from_segment(b->m, b->p1, 1.0, 1000), 1.99);
 
   EXPECT_EQ(value_from_segment(b->m, b->p2, 1.0, 0), 2.0);
-  */
 }
 
 } // namespace GekkotaTest
