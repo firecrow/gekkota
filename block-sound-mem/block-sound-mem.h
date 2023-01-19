@@ -66,8 +66,8 @@ struct gka_entry {
     struct {
       gka_time_t start;
       gka_time_t repeat;
-      gka_local_address_t addr;
-    } pattern;
+      gka_local_address_t sounds;
+    } event;
     struct {
       gka_local_address_t freq;
       gka_local_address_t volume;
