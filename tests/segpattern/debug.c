@@ -6,6 +6,10 @@ static char *type_strings[] = {"GKA_UNSPECIFIED",   "GKA_RESERVED_BY_NEIGHBOUR",
                                "GKA_SEGMENT_VALUE", "GKA_NEXT_LOCAL"};
 
 void test_print_entry(struct gka_entry *e) {
+  if (e == NULL) {
+    printf("NULL for segment argument");
+    return;
+  }
   printf("%s", type_strings[e->type], e->values.placement.value);
   if (e->type == GKA_NEXT_LOCAL || e->type == GKA_SOUND) {
     printf(" -> %ld", e->addr / sizeof(struct gka_entry));

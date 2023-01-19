@@ -481,6 +481,139 @@ TEST_F(GkaSegPatternFixture, SegmentFromSegmentTests) {
   test_print_mem_block(m);
 }
 
+TEST_F(GkaSegPatternFixture, ValueFromSegmentTests) {
+  gka_time_t START = 0;
+  gka_decimal_t VALUE = 0.5;
+  gka_operand_t TRANSITION = GKA_CLIFF;
+
+  gka_time_t START2 = 100;
+  gka_decimal_t VALUE2 = 1.0;
+  gka_operand_t TRANSITION2 = GKA_LINEAR;
+
+  gka_time_t START3 = 200;
+  gka_decimal_t VALUE3 = 1.5;
+  gka_operand_t TRANSITION3 = GKA_LINEAR;
+
+  gka_time_t START4 = 300;
+  gka_decimal_t VALUE4 = 1.75;
+  gka_operand_t TRANSITION4 = GKA_LINEAR;
+
+  gka_time_t START5 = 400;
+  gka_decimal_t VALUE5 = 1.85;
+  gka_operand_t TRANSITION5 = GKA_LINEAR;
+
+  gka_time_t START6 = 500;
+  gka_decimal_t VALUE6 = 1.95;
+  gka_operand_t TRANSITION6 = GKA_LINEAR;
+
+  gka_time_t START7 = 600;
+  gka_decimal_t VALUE7 = 1.99;
+  gka_operand_t TRANSITION7 = GKA_LINEAR;
+
+  // second pattern tests
+  gka_time_t P2_START = 0;
+  gka_decimal_t P2_VALUE = 2.0;
+  gka_operand_t P2_TRANSITION = GKA_CLIFF;
+
+  gka_time_t P2_START2 = 100;
+  gka_decimal_t P2_VALUE2 = 2.1;
+  gka_operand_t P2_TRANSITION2 = GKA_LINEAR;
+
+  gka_time_t P2_START3 = 200;
+  gka_decimal_t P2_VALUE3 = 2.5;
+  gka_operand_t P2_TRANSITION3 = GKA_LINEAR;
+
+  gka_time_t P2_START4 = 300;
+  gka_decimal_t P2_VALUE4 = 2.75;
+  gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
+
+  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+  gka_local_address_t t = gka_pattern_create(m);
+  struct gka_entry *p = gka_pointer(m, t);
+
+  struct gka_entry _s;
+  _s.values.placement.start_time = START2;
+  _s.values.placement.value = VALUE2;
+  _s.transition = TRANSITION2;
+
+  gka_segpattern_add_segment(m, p, &_s);
+  struct gka_entry *s = gka_pointer(m, p->addr);
+
+  _s.values.placement.start_time = START3;
+  _s.values.placement.value = VALUE3;
+  _s.transition = TRANSITION3;
+  t = gka_segpattern_add_segment(m, p, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = START4;
+  _s.values.placement.value = VALUE4;
+  _s.transition = TRANSITION4;
+  t = gka_segpattern_add_segment(m, p, &_s);
+
+  s = gka_pointer(m, t);
+
+  // start adding a second pattern to the memblock
+  gka_local_address_t p2t = gka_pattern_create(m);
+  struct gka_entry *p2 = gka_pointer(m, p2t);
+
+  _s.values.placement.start_time = P2_START;
+  _s.values.placement.value = P2_VALUE;
+  _s.transition = P2_TRANSITION;
+  t = gka_segpattern_add_segment(m, p2, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = P2_START2;
+  _s.values.placement.value = P2_VALUE2;
+  _s.transition = P2_TRANSITION2;
+  t = gka_segpattern_add_segment(m, p2, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = P2_START3;
+  _s.values.placement.value = P2_VALUE3;
+  _s.transition = P2_TRANSITION3;
+  t = gka_segpattern_add_segment(m, p2, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = P2_START4;
+  _s.values.placement.value = P2_VALUE4;
+  _s.transition = P2_TRANSITION4;
+  t = gka_segpattern_add_segment(m, p2, &_s);
+
+  s = gka_pointer(m, t);
+
+  // add more back from the original pattern now to cause a segment
+  _s.values.placement.start_time = START5;
+  _s.values.placement.value = VALUE5;
+  _s.transition = TRANSITION5;
+  t = gka_segpattern_add_segment(m, p, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = START6;
+  _s.values.placement.value = VALUE6;
+  _s.transition = TRANSITION6;
+  t = gka_segpattern_add_segment(m, p, &_s);
+
+  s = gka_pointer(m, t);
+
+  _s.values.placement.start_time = START7;
+  _s.values.placement.value = VALUE7;
+  _s.transition = TRANSITION7;
+  t = gka_segpattern_add_segment(m, p, &_s);
+
+  test_print_mem_block(m);
+  EXPECT_EQ(value_from_segment(m, p, 1.0, 0), 1.0);
+  EXPECT_TRUE(FuzzyMatch(value_from_segment(m, p, 1.0, 150), 1.0, 1.5));
+  EXPECT_TRUE(FuzzyMatch(value_from_segment(m, p, 1.0, 440), 1.85, 1.95));
+  EXPECT_EQ(value_from_segment(m, p, 1.0, 1000), 1.99);
+
+  EXPECT_EQ(value_from_segment(m, p2, 1.0, 0), 2.0);
+}
+
 } // namespace GekkotaTest
 
 int main(int argc, char *argv[]) {

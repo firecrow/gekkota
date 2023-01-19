@@ -157,6 +157,10 @@ gka_local_address_t gka_extend_segment(
 }
 
 gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
+  if(0){
+    printf("finding next from localp: %ld\n", localp/sizeof(struct gka_entry));
+  }
+
   gka_local_address_t newlp = gka_next_local(blk, localp);
   if(newlp == GKA_BOUNDRY_ACTION){
     fprintf(stderr, "Error getting next address %s:%d\n", __FILE__, __LINE__);
@@ -166,6 +170,9 @@ gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_
   if(s->type == GKA_NEXT_LOCAL){
     return s->addr;
   }else if(s->type == type){
+    if(0){
+      printf("found newlp: %ld\n", newlp/ GKA_SEGMENT_SIZE);
+    }
     return newlp;
   }
   return GKA_BOUNDRY_ACTION;
@@ -208,11 +215,29 @@ gka_segment_from_pattern(struct gka_mem_block *blk, struct gka_entry *pattern, g
 double value_from_segment(
     struct gka_mem_block *blk, struct gka_entry *pattern, double base_value, gka_time_t offset
 ) {
+  if(0){
+    printf("value from segment called %ld\n", offset);
+  }
 
   struct gka_entry *segment = gka_segment_from_pattern(blk, pattern, offset);
-  struct gka_entry *next = gka_entry_next(blk, pattern->addr, GKA_SEGMENT_VALUE);
+  struct gka_entry *next = NULL;
+
+  if(segment->values.placement.start_time < offset){
+    gka_local_address_t nextlp = gka_entry_next(blk, gka_to_local(blk, segment), GKA_SEGMENT_VALUE);
+    next = gka_pointer(blk, nextlp);
+  }
+
+  if(0){
+    test_print_entry(segment);
+    printf("\n");
+    test_print_entry(next);
+    printf("\n");
+  }
 
   if (!next) {
+    if(0){
+      printf("no next found returning base * segment\n");
+    }
     return base_value * segment->values.placement.value;
   }
 
@@ -227,5 +252,8 @@ double value_from_segment(
   double segment_value =
       segment->values.placement.value + (next->values.placement.value - segment->values.placement.value) * progress;
 
+  if(0){
+    printf("no next found running algo\n");
+  }
   return base_value * segment_value;
 }
