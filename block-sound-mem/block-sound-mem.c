@@ -17,7 +17,7 @@ struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size){
   m->allocated = size;
 
   // reserve first slot
-  m->next_available += sizeof(struct gka_entry);
+  m->next_available += GKA_SEGMENT_SIZE;
 
   return m;
 }
@@ -43,11 +43,11 @@ struct gka_entry *gka_pointer(struct gka_mem_block *blk, gka_local_address_t loc
 }
 
 struct gka_entry *gka_nth(struct gka_mem_block *blk, int offset){
-    return gka_pointer(blk, sizeof(struct gka_entry)*offset);
+    return gka_pointer(blk, GKA_SEGMENT_SIZE*offset);
 }
 
 gka_local_address_t gka_next_local(struct gka_mem_block *blk, gka_local_address_t localp){
-    gka_local_address_t next_would_be = localp + sizeof(struct gka_entry);
+    gka_local_address_t next_would_be = localp + GKA_SEGMENT_SIZE;
     if(next_would_be > blk->allocated){
         return GKA_BOUNDRY_ACTION; 
     } 
@@ -63,7 +63,7 @@ struct gka_entry *gka_next(struct gka_mem_block *blk, gka_local_address_t localp
 }
 
 int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp){
-    gka_local_address_t next_would_be = localp + sizeof(struct gka_entry);
+    gka_local_address_t next_would_be = localp + GKA_SEGMENT_SIZE;
     if(next_would_be > blk->allocated){
         return GKA_BOUNDRY_ACTION; 
     } 
