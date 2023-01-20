@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "../block-sound-mem/block-sound-mem.h"
+#include "block-sound-mem.h"
 #include "segpattern.h"
 
 void linear_ease(
@@ -170,6 +169,19 @@ gka_local_address_t gka_segpattern_add_segment(struct gka_mem_block *blk, gka_lo
     next = gka_entry_next(blk, next, GKA_SEGMENT_VALUE);
   }
   return gka_extend_segment(blk, current, seg);
+}
+
+gka_local_address_t gka_segpattern_add_segment_values(
+    struct gka_mem_block *blk, gka_local_address_t currentlp,
+    gka_time_t start_time, gka_decimal_t value, gka_operand_t transition
+  ) {
+
+  struct gka_entry _s;
+  _s.values.all.type = GKA_SEGMENT_VALUE;
+  _s.values.segment.start_time = start_time;
+  _s.values.segment.value = value;
+
+  return gka_segpattern_add_segment(blk, currentlp, &_s);
 }
 
 struct gka_entry *

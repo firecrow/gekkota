@@ -6,7 +6,7 @@ using namespace std;
 #include "../common/test_common.h"
 
 extern "C" {
-#include "block-sound-mem/block-sound-mem.h"
+#include "block-sound-mem.h"
 #include "segpattern.h"
 #include "debug.c"
 }
@@ -166,7 +166,6 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
     id3,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0
-    
   };
   // clang-format on
 

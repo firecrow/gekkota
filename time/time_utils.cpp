@@ -1,6 +1,8 @@
-#include "../gekkota.h"
+#include <time.h>
+#include "../block-sound-mem/block-sound-mem.h"
+#include "gka_time.h"
 
-gka_timeint from_timespec(struct timespec *t) {
+gka_time_t from_timespec(struct timespec *t) {
   return t->tv_sec * NANOS + t->tv_nsec;
 }
 

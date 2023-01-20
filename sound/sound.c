@@ -1,8 +1,7 @@
-#include "../gekkota.h"
+#include "sound.h"
 
 gka_local_address_t gka_sound_create(
-    gka_mem_block *blk, gka_local_address_t freq, gka_local_address_t volume,
-    gka_local_address_t distortion, gka_local_address_t shape
+    struct gka_mem_block *blk, gka_local_address_t freq, gka_local_address_t volume
 ) {
 
   gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
@@ -15,13 +14,11 @@ gka_local_address_t gka_sound_create(
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->values.sound.freq = freq;
   s->values.sound.volume = volume;
-  s->values.sound.distortion = distortion;
-  s->values.sound.shape = shape;
-  s->type = GKA_SOUND;
+  s->values.all.type = GKA_SOUND;
 };
 
 gka_local_address_t gka_sound_event_create(
-    gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
+    struct gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
     gka_time_t repeat
 ) {
   gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
@@ -34,11 +31,11 @@ gka_local_address_t gka_sound_event_create(
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->values.event.start = start;
   s->values.event.repeat = repeat;
-  s->type = GKA_SOUND_EVENT;
+  s->values.all.type = GKA_SOUND_EVENT;
 }
 
 gka_value_t gka_get_frame_value_from_event(
-    gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
+    struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
     gka_time_t local, const long rate
 ) {
 

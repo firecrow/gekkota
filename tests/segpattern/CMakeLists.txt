@@ -18,5 +18,6 @@ target_link_libraries(TestSegPattern block-sound-mem)
 target_link_libraries(TestSegPattern gtest)
 target_include_directories(TestSegPattern PRIVATE ${CMAKE_SOURCE_DIR}/../../)
 target_include_directories(TestSegPattern PRIVATE ${CMAKE_SOURCE_DIR}/../../segpattern)
+target_include_directories(TestSegPattern PRIVATE ${CMAKE_SOURCE_DIR}/../../block-sound-mem)
 
 add_test(NAME TestSegPatternTest COMMAND TestSegPattern)

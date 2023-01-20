@@ -21,12 +21,15 @@ gka_local_address_t gka_segpattern_add_segment(
     struct gka_entry *seg
 );
 
+gka_local_address_t gka_segpattern_add_segment_values(
+    struct gka_mem_block *blk, gka_local_address_t currentlp,
+    gka_time_t start_time, gka_decimal_t value, gka_operand_t transition
+);
+
 gka_local_address_t gka_segment_create(
     struct gka_mem_block *blk, gka_value_t gotime, gka_decimal_t start_value,
     gka_operand_t ease
 );
-
-gka_local_address_t gka_pattern_create(struct gka_mem_block *blk);
 
 gka_local_address_t gka_extend_segment(
     struct gka_mem_block *blk, gka_local_address_t current,
