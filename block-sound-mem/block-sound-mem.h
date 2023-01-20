@@ -45,7 +45,7 @@ enum gka_transition_type {
   GKA_EASE_OUT,
 };
 
-/* This is the basic block layout that other objects will fit itno*/
+/* This is the basic block layout that other objects will fit into*/
 struct gka_entry {
   union {
     struct {
@@ -55,10 +55,10 @@ struct gka_entry {
       * gka_value_operand enum */
       gka_operand_t type;
       gka_operand_t subtype;
-    }all;
+    } all;
     struct {
       gka_operand_t type;
-      /* this is the address of the first segmetn if it is a sound, or the next
+      /* this is the address of the first segment if it is a sound, or the next
        * segment if this indidates to continue on at another address */
       gka_local_address_t addr;
     } link;
