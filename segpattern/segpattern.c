@@ -214,7 +214,9 @@ double value_from_segment(
 
   if(segment->values.segment.start_time < offset){
     gka_local_address_t nextlp = gka_entry_next(blk, gka_to_local(blk, segment), GKA_SEGMENT_VALUE);
-    next = gka_pointer(blk, nextlp);
+    if(nextlp){
+      next = gka_pointer(blk, nextlp);
+    }
   }
 
   if(0){
@@ -226,7 +228,7 @@ double value_from_segment(
 
   if (!next) {
     if(0){
-      printf("no next found returning base * segment\n");
+      printf("\x1b[31mno next found returning base * segment %lf\n\x1b[0m", segment->values.segment.value);
     }
     return base_value * segment->values.segment.value;
   }

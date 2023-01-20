@@ -16,6 +16,7 @@ typedef char gka_operand_t;
 // 32
 typedef uint32_t gka_subvalue_t;
 typedef gka_subvalue_t gka_local_address_t;
+typedef float gka_subdecimal_t;
 // 64
 typedef uint64_t gka_global_t;
 typedef uint64_t gka_value_t;
@@ -78,7 +79,7 @@ struct gka_entry {
     } event;
     struct {
       gka_operand_t type;
-      gka_operand_t step;
+      gka_subdecimal_t step;
       gka_decimal_t phase;
       gka_local_address_t freq;
       gka_local_address_t volume;

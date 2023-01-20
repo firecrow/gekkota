@@ -1,3 +1,4 @@
+#include <math.h>
 #include "sound.h"
 
 gka_local_address_t gka_sound_create(
@@ -15,6 +16,8 @@ gka_local_address_t gka_sound_create(
   s->values.sound.freq = freq;
   s->values.sound.volume = volume;
   s->values.all.type = GKA_SOUND;
+
+  return localp;
 };
 
 gka_local_address_t gka_sound_event_create(
@@ -31,7 +34,10 @@ gka_local_address_t gka_sound_event_create(
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
   s->values.event.start = start;
   s->values.event.repeat = repeat;
+  s->values.event.sounds = sounds;
   s->values.all.type = GKA_SOUND_EVENT;
+
+  return localp;
 }
 
 gka_value_t gka_get_frame_value_from_event(
@@ -63,6 +69,7 @@ gka_value_t gka_get_frame_value_from_event(
     if (s->values.sound.phase >= MAX_PHASE) {
       s->values.sound.phase -= MAX_PHASE;
     }
+
     // increment to next sound
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND);
   }
