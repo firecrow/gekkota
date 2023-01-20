@@ -10,10 +10,10 @@ void test_print_entry(struct gka_entry *e) {
     printf("NULL for segment argument");
     return;
   }
-  printf("%s", type_strings[e->type], e->values.segment.value);
-  if (e->type == GKA_NEXT_LOCAL || e->type == GKA_SOUND) {
+  printf("%s", type_strings[e->values.all.type], e->values.segment.value);
+  if (e->values.all.type == GKA_NEXT_LOCAL || e->values.all.type == GKA_SOUND) {
     printf(" -> %ld", e->values.link.addr / sizeof(struct gka_entry));
-  } else if (e->type == GKA_SEGMENT_VALUE) {
+  } else if (e->values.all.type == GKA_SEGMENT_VALUE) {
     printf(" = %ld:%lf", e->values.segment.start_time, e->values.segment.value);
   }
   printf("");

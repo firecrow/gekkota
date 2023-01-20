@@ -190,9 +190,8 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
 
   cout << "\x1b[34mpointer\x1b[0m" << endl;
   s = gka_pointer(m, t);
-  EXPECT_EQ(
-      s->type, id1
-  ) << "Expect the first block to have the id of the first test data";
+  EXPECT_EQ(s->values.all.type, id1)
+      << "Expect the first block to have the id of the first test data";
 
   cout << "\x1b[34mnext allocated pointer\x1b[0m" << endl;
   EXPECT_EQ(m->next_available, gka_to_local(m, s) + sizeof(struct gka_entry))
@@ -215,7 +214,7 @@ TEST_F(GkaSegPatternFixture, SegmentCreateTests) {
       << "Expect first record be 1 records worth of bytes in";
 
   s = gka_pointer(m, t);
-  EXPECT_EQ(s->type, GKA_SEGMENT_VALUE) << "Expect first record k";
+  EXPECT_EQ(s->values.all.type, GKA_SEGMENT_VALUE) << "Expect first record k";
 }
 
 TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
