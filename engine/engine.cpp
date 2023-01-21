@@ -1,6 +1,6 @@
 #include "../gekkota.h"
 
-static const char *device = "hw:3,0"; /* playback device */
+static const char *device = "hw:4,0"; /* playback device */
 
 static double generate_frame_value(
     Title &ctx, vector<struct gka_mem_block *> blocks, gka_timeint local,
@@ -22,9 +22,9 @@ static double generate_frame_value(
         local_repeat = gka_time_modulus(
             local - e->values.event.start, e->values.event.repeat
         );
-        frame_value += gka_get_frame_value_from_event(
-            m, e, e->values.event.repeat, local_repeat, rate
-        );
+        frame_value +=
+            gka_get_frame_value_from_event(m, e, 0, local_repeat, rate);
+        // fprintf(Title::instance.logger.file, ".%ld..%ld\n", 0, local_repeat);
       } else {
         frame_value += gka_get_frame_value_from_event(
             m, e, e->values.event.start, local, rate
@@ -85,22 +85,20 @@ static void generate_sine(
   int frame = 0;
   elapsed = gka_now() - ctx->start_time;
 
-  while (count-- > 0) {
-    frame++;
-    res = 0;
-    frame_value = 0.0;
-    local = elapsed + frame;
+  frame++;
+  res = 0;
+  frame_value = 0.0;
+  local = elapsed + frame;
 
-    frame_value =
-        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
+  frame_value =
+      generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
 
-    res = frame_value * maxval;
-    int i;
-    for (chn = 0; chn < gka_params.channels; chn++) {
-      for (i = 0; i < bps; i++)
-        *(samples[chn] + i) = (res >> i * 8) & 0xff;
-      samples[chn] += steps[chn];
-    }
+  res = frame_value * maxval;
+  int i;
+  for (chn = 0; chn < gka_params.channels; chn++) {
+    for (i = 0; i < bps; i++)
+      *(samples[chn] + i) = (res >> i * 8) & 0xff;
+    samples[chn] += steps[chn];
   }
 }
 
@@ -241,5 +239,6 @@ int setup_hw(struct gka_audio_params *gka_params) {
 }
 
 void tear_down_audio(struct gka_audio_params *gka_params) {
+  printf("tearing down handle %ld\n", gka_params->output_handle);
   snd_pcm_close(gka_params->output_handle);
 }

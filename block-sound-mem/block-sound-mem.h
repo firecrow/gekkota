@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifndef __GKA_MEM_BLOCK_HEADER
+#define __GKA_MEM_BLOCK_HEADER
+
 /* boundry action is not necessarliy bad it happens at the end of a block and at
  * the end of a segment, both of which can happen naturally */
 #define GKA_BOUNDRY_ACTION 0
@@ -112,3 +115,5 @@ gka_extend_entry(struct gka_mem_block *blk, gka_local_address_t localp);
 
 gka_local_address_t
 gka_add_entry_to_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type);
+
+#endif

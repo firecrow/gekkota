@@ -60,7 +60,7 @@ gka_local_address_t gka_sound_event_create(
   return localp;
 }
 
-gka_value_t gka_get_frame_value_from_event(
+gka_decimal_t gka_get_frame_value_from_event(
     struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
     gka_time_t local, const long rate
 ) {

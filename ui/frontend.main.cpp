@@ -20,16 +20,21 @@ int main(int argc, char *argv[]) {
   printf("starting.........'\n");
 
   signal(SIGINT, tear_down);
-  Title title = Title::instance;
+  Title *title = &Title::instance;
 
-  title.Init();
+  title->Init();
 
   struct gka_mem_block *m = gka_alloc_memblock(64 * GKA_SEGMENT_SIZE);
-  Tone::constructSound(m, 440.0, 0.5, 2.0);
-  title.sound_blocks.push_back(m);
+  Tone::constructSound(m, 440.0, 0.5, BEAT_NS_32nds * 32);
+  title->sound_blocks.push_back(m);
+  printf(
+      "pushing back a block of sounds at %ld %ld\n", m,
+      title->sound_blocks.size()
+  );
+  test_print_mem_block(m);
 
-  KeysInstrument *Keys = new KeysInstrument(title.midiRouter);
-  title.midiRouter->instruments.push_back(Keys);
+  KeysInstrument *Keys = new KeysInstrument(title->midiRouter);
+  title->midiRouter->instruments.push_back(Keys);
 
   struct gka_audio_params gka_params = {
       .output_handle = 0,

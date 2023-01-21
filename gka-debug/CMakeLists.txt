@@ -1,0 +1,1 @@
+add_library(gka-debug OBJECT gka_debug.c)

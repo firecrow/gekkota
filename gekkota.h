@@ -4,7 +4,11 @@ using namespace std;
 
 typedef void (*void_fptr)();
 
+extern "C" {
 #include "./sound/sound.h"
+#include "./gka-debug/gka_debug.h"
+}
+
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"
 #include "./time/gka_time.h"

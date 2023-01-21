@@ -1,5 +1,4 @@
-//#include "../block-sound-mem/block-sound-mem.h"
-//#include "../segpattern/segpattern.h"
+#include "gka_debug.h"
 
 static char *type_strings[] = {
     "GKA_UNSPECIFIED",

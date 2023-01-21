@@ -10,6 +10,9 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 message("Creating main executable variang: UI adds executable Gekkota")
 add_executable(Gekkota ui/frontend.main.cpp)
 
+add_subdirectory(sound)
+target_link_libraries(Gekkota sound)
+
 add_subdirectory(engine)
 target_link_libraries(Gekkota engine)
 
@@ -28,9 +31,6 @@ target_link_libraries(Gekkota frontend_service)
 add_subdirectory(audio-output)
 target_link_libraries(Gekkota audio_output)
 
-add_subdirectory(sound)
-target_link_libraries(Gekkota sound)
-
 add_subdirectory(time)
 target_link_libraries(Gekkota time)
 
@@ -40,12 +40,16 @@ target_link_libraries(Gekkota title)
 add_subdirectory(logger)
 target_link_libraries(Gekkota logger)
 
+add_subdirectory(block-sound-mem)
+target_link_libraries(Gekkota block-sound-mem)
+
+add_subdirectory(gka-debug)
+target_link_libraries(Gekkota gka-debug) 
+
+
 target_link_libraries(Gekkota xkbcommon)
 target_link_libraries(Gekkota /usr/local/share/static/libblend2d.a)
+
 target_link_libraries(Gekkota asound)
 
 target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR})
-target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../segpattern)
-target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../block-sound-mem)
-target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../time)
-target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../sound)
