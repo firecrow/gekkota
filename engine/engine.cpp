@@ -24,7 +24,6 @@ static double generate_frame_value(
         );
         frame_value +=
             gka_get_frame_value_from_event(m, e, 0, local_repeat, rate);
-        // fprintf(Title::instance.logger.file, ".%ld..%ld\n", 0, local_repeat);
       } else {
         frame_value += gka_get_frame_value_from_event(
             m, e, e->values.event.start, local, rate

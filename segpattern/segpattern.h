@@ -77,3 +77,8 @@ struct gka_entry *gka_segment_from_pattern(
 void gka_set_entry_status(
     struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
 );
+
+gka_local_address_t gka_segment_new(
+    struct gka_mem_block *blk, gka_value_t start_time,
+    gka_decimal_t start_value, gka_operand_t ease
+);

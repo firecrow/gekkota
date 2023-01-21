@@ -90,6 +90,13 @@ gka_decimal_t gka_get_frame_value_from_event(
       s->values.sound.phase -= MAX_PHASE;
     }
 
+    printf("freq:%lf\n", freq);
+    printf("volume:%lf\n", volume);
+    printf("phase:%lf\n", s->values.sound.phase);
+    printf("step:%lf\n", s->values.sound.step);
+
+    printf("value:%lf\n", value);
+
     // increment to next sound
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND);
   }

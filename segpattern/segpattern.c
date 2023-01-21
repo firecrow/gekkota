@@ -41,16 +41,16 @@ gka_apply_transition(
 ){
   switch(transition){
     case GKA_CLIFF:
-      square_ease(progress, segment, start, end); 
+      square_ease(&progress, segment, start, end); 
       break;
     case GKA_LINEAR:
-      linear_ease(progress, segment, start, end); 
+      linear_ease(&progress, segment, start, end); 
       break;
     case GKA_EASE_IN:
-      ease_in(progress, segment, start, end); 
+      ease_in(&progress, segment, start, end); 
       break;
     case GKA_EASE_OUT:
-      ease_out(progress, segment, start, end); 
+      ease_out(&progress, segment, start, end); 
       break;
   }
 }
@@ -72,6 +72,30 @@ gka_local_address_t gka_segment_create(
   s->values.segment.value = start_value;
   s->values.segment.transition = ease;
   s->values.all.type = GKA_SEGMENT_VALUE;
+
+  return localp;
+}
+
+gka_local_address_t gka_segment_new(
+        struct gka_mem_block *blk, gka_value_t start_time, gka_decimal_t start_value,
+        gka_operand_t ease
+    ) {
+  gka_local_address_t localp =
+      gka_allocate_space(blk, GKA_SEGMENT_SIZE*2);
+
+  if (localp == GKA_BOUNDRY_ACTION) {
+    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
+    return GKA_MEMORY_FAILURE;
+  }
+
+  struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
+  s->values.segment.start_time = start_time;
+  s->values.segment.value = start_value;
+  s->values.segment.transition = ease;
+  s->values.all.type = GKA_SEGMENT_VALUE;
+
+  gka_local_address_t next_address = gka_next_local(blk, localp);
+  gka_set_entry_status(blk, next_address, GKA_RESERVED_BY_NEIGHBOUR);
 
   return localp;
 }
@@ -192,7 +216,7 @@ double value_from_segment(
     return base_value * segment->values.segment.value;
   }
 
-  double progress = (double)(offset - segment->values.segment.value) /
+  double progress = (double)(offset - segment->values.segment.start_time) /
                     (double)(next->values.segment.start_time - segment->values.segment.start_time);
 
   gka_apply_transition(
@@ -201,8 +225,9 @@ double value_from_segment(
 
 
   double segment_value =
-      segment->values.segment.value + (next->values.segment.value - segment->values.segment.value) * progress;
+      segment->values.segment.value + ((next->values.segment.value - segment->values.segment.value) * progress);
 
+  printf("%ld, %lf %lf\n", offset, progress, segment_value);
   if(0){
     printf("no next found running algo\n");
   }
