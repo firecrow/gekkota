@@ -16,7 +16,7 @@ struct gka_mem_block *gka_alloc_memblock(gka_local_address_t size){
   memset(m->data, 0, size);
   m->allocated = size;
 
-  // reserve first slot
+  // reserve first slot for first sound event
   m->next_available += GKA_SEGMENT_SIZE;
 
   return m;
@@ -71,4 +71,55 @@ int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp){
         blk->next_available = next_would_be;
     }
     return next_would_be;
+}
+
+gka_local_address_t
+gka_extend_entry_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
+    printf("\x1b[36mextending\n\x1b[0m");
+
+  gka_local_address_t neighbour_address = gka_next_local(blk, localp);
+
+  if(neighbour_address == GKA_BOUNDRY_ACTION){
+    fprintf(stderr, "BLOCK BOUNDS REACHED %s:%d\n", __FILE__, __LINE__);
+    exit(1);
+  }
+  struct gka_entry *neighbour = gka_pointer(blk, neighbour_address);
+
+  gka_local_address_t next_neighbour_address = gka_next_local(blk, neighbour_address);
+  if(next_neighbour_address == GKA_BOUNDRY_ACTION){
+    fprintf(stderr, "BLOCK BOUNDS REACHED %s:%d\n", __FILE__, __LINE__);
+    exit(1);
+  }
+  struct gka_entry *next_neighbour = gka_pointer(blk, next_neighbour_address);
+
+  if(neighbour->values.all.type != GKA_UNSPECIFIED && neighbour->values.all.type != GKA_RESERVED_BY_NEIGHBOUR){
+    fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
+    exit(1);
+    return 0;
+  }
+  if(next_neighbour_address == GKA_BOUNDRY_ACTION || next_neighbour->values.all.type == GKA_UNSPECIFIED){
+    if(!gka_claim_entry(blk, next_neighbour_address)){
+      fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
+      exit(1);
+      return 0;
+    }
+
+    gka_set_entry_status(blk, next_neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
+    next_neighbour->values.all.type = GKA_RESERVED_BY_NEIGHBOUR;
+
+    printf("\x1b[36mavailable reserving next next and returning newlp\n\x1b[0m");
+    return neighbour_address;
+  }else{
+    if(neighbour->values.all.type == GKA_RESERVED_BY_NEIGHBOUR){
+      printf("\x1b[36mavailable reserving next next and returning LINK newlp\n\x1b[0m");
+
+      gka_local_address_t newlp =
+        gka_allocate_space(blk, GKA_SEGMENT_SIZE);
+      neighbour->values.all.type = GKA_NEXT_LOCAL;
+      neighbour->values.link.addr = newlp;
+
+      return newlp;
+    }
+  }
+  return 0;
 }

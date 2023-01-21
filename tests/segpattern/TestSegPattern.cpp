@@ -8,7 +8,7 @@ using namespace std;
 extern "C" {
 #include "block-sound-mem.h"
 #include "segpattern.h"
-#include "debug.c"
+#include "../debug.c"
 }
 
 namespace GekkotaTest {

@@ -20,6 +20,8 @@ gka_local_address_t gka_sound_create(
   return localp;
 };
 
+gka_local_address_t gka_sound_event_place(struct gka_mem_block *blk);
+
 gka_local_address_t gka_sound_event_create(
     struct gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
     gka_time_t repeat

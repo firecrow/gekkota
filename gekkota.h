@@ -5,6 +5,7 @@ using namespace std;
 
 typedef void (*void_fptr)();
 
+#include "./sound/sound.h"
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"
 #include "./time/gka_time.h"
@@ -13,7 +14,6 @@ typedef void (*void_fptr)();
 #include "./engine/engine.h"
 #include "./audio-output/audio.h"
 #include "./segpattern/segpattern.h"
-#include "./sound/sound.h"
 #include "./midi/midi.h"
 #include "./instrument/instrument.h"
 #include "./instrument/dispatch.h"

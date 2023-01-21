@@ -15,13 +15,18 @@ namespace GekkotaTest {
 class GkaSoundFixture : public testing::Test {
 protected:
   GkaSoundFixture() {}
-  static gka_entry *MakeExampleSoundEvent(struct gka_mem_block *m) {
+  static gka_entry *
+  MakeExampleSoundEvent(struct gka_mem_block *m, gka_decimal_t basevol) {
 
     gka_local_address_t vol_pattern_seg =
-        gka_segment_create(m, 0, 0.1, GKA_LINEAR);
+        gka_segment_create(m, 0, basevol + 0.1, GKA_LINEAR);
 
-    gka_segpattern_add_segment_values(m, vol_pattern_seg, 10, 0.1, GKA_LINEAR);
-    gka_segpattern_add_segment_values(m, vol_pattern_seg, 15, 0.0, GKA_LINEAR);
+    gka_segpattern_add_segment_values(
+        m, vol_pattern_seg, 10, basevol + 0.1, GKA_LINEAR
+    );
+    gka_segpattern_add_segment_values(
+        m, vol_pattern_seg, 15, basevol + 0.0, GKA_LINEAR
+    );
 
     gka_local_address_t freq_pattern_seg =
         gka_segment_create(m, 0, 440.0, GKA_CLIFF);
@@ -38,7 +43,7 @@ protected:
 
 TEST_F(GkaSoundFixture, TestPhaseIncrement) {
   struct gka_mem_block *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
-  struct gka_entry *event = GkaSoundFixture::MakeExampleSoundEvent(m);
+  struct gka_entry *event = GkaSoundFixture::MakeExampleSoundEvent(m, 0.0);
 
   gka_entry *s_alpha = gka_pointer(m, event->values.event.sounds);
   EXPECT_EQ(s_alpha->values.sound.phase, 0.0) << "step starts out as zego";
@@ -59,7 +64,12 @@ TEST_F(GkaSoundFixture, TestPhaseIncrement) {
 
   EXPECT_GT(s_alpha->values.sound.step, originalStep)
       << "expect a higher step with an increased freqeuncy";
+}
 
+TEST_F(GkaSoundFixture, TestClimbThroughSounds) {
+  struct gka_mem_block *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
+  struct gka_entry *event1 = GkaSoundFixture::MakeExampleSoundEvent(m, 0.0);
+  struct gka_entry *event2 = GkaSoundFixture::MakeExampleSoundEvent(m, 0.5);
   test_print_mem_block(m);
 }
 

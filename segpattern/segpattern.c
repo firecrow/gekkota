@@ -84,59 +84,20 @@ void gka_set_entry_status(struct gka_mem_block *blk, gka_local_address_t localp,
 
 gka_local_address_t gka_extend_segment(
      struct gka_mem_block *blk, gka_local_address_t current, struct gka_entry *seg){
-  gka_local_address_t neighbour_address = gka_next_local(blk, current);
-
-  if(neighbour_address == GKA_BOUNDRY_ACTION){
-    fprintf(stderr, "BLOCK BOUNDS REACHED %s:%d\n", __FILE__, __LINE__);
-    exit(1);
-  }
-  struct gka_entry *neighbour = gka_pointer(blk, neighbour_address);
-
-  gka_local_address_t next_neighbour_address = gka_next_local(blk, neighbour_address);
-  if(next_neighbour_address == GKA_BOUNDRY_ACTION){
-    fprintf(stderr, "BLOCK BOUNDS REACHED %s:%d\n", __FILE__, __LINE__);
-    exit(1);
-  }
-  struct gka_entry *next_neighbour = gka_pointer(blk, next_neighbour_address);
-
-  if(neighbour->values.all.type != GKA_UNSPECIFIED && neighbour->values.all.type != GKA_RESERVED_BY_NEIGHBOUR){
-    fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
-    exit(1);
+  gka_local_address_t newlp = gka_extend_entry_set(blk, current, GKA_SEGMENT_VALUE);
+  if(newlp == GKA_BOUNDRY_ACTION){
+    fprintf(stderr, "Error extending segment %s:%d\n", __FILE__, __LINE__);
     return 0;
   }
-  if(next_neighbour_address == GKA_BOUNDRY_ACTION || next_neighbour->values.all.type == GKA_UNSPECIFIED){
-    if(!gka_claim_entry(blk, next_neighbour_address)){
-      fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
-      exit(1);
-      return 0;
-    }
 
+  printf("entering int into %ld\n", newlp / GKA_SEGMENT_SIZE);
+  struct gka_entry *s = gka_pointer(blk, newlp);
+  s->values.all.type = GKA_SEGMENT_VALUE;
+  s->values.segment.start_time = seg->values.segment.start_time;
+  s->values.segment.value = seg->values.segment.value;
+  s->values.segment.transition = seg->values.segment.transition;
 
-    neighbour->values.all.type = GKA_SEGMENT_VALUE;
-    neighbour->values.segment.start_time = seg->values.segment.start_time;
-    neighbour->values.segment.value = seg->values.segment.value;
-    neighbour->values.segment.transition = seg->values.segment.transition;
-
-    gka_set_entry_status(blk, next_neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
-    next_neighbour->values.all.type = GKA_RESERVED_BY_NEIGHBOUR;
-    return neighbour_address;
-  }else{
-    if(neighbour->values.all.type == GKA_RESERVED_BY_NEIGHBOUR){
-      gka_local_address_t newlp = gka_segment_create(
-        blk, seg->values.segment.start_time, seg->values.segment.value, seg->values.segment.transition);
-
-      neighbour->values.all.type = GKA_NEXT_LOCAL;
-      neighbour->values.link.addr = newlp;
-
-      struct gka_entry *s = (struct gka_entry*)gka_pointer(blk, newlp);
-
-      s->values.segment.start_time = seg->values.segment.start_time;
-      s->values.segment.value = seg->values.segment.value;
-      s->values.segment.transition = seg->values.segment.transition;
-      return newlp;
-    }
-  }
-  return 0;
+  return newlp;
 }
 
 gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
