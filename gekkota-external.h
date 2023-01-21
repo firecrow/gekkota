@@ -10,3 +10,4 @@
 #include <iostream>
 #include <thread>
 #include <inttypes.h>
+#include <blend2d.h>

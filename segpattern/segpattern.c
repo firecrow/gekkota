@@ -1,4 +1,3 @@
-#include "block-sound-mem.h"
 #include "segpattern.h"
 
 void linear_ease(

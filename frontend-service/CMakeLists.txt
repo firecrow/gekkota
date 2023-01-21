@@ -18,3 +18,4 @@ add_library(frontend_service OBJECT FrontEndService.cpp ${WAYLAND_TMP_DIR}/xdg-s
 target_link_libraries(frontend_service -lwayland-client)
 message("including directories for wayland temporary headers: " ${WAYLAND_TMP_DIR})
 target_include_directories(frontend_service PRIVATE ${WAYLAND_TMP_DIR})
+target_include_directories(frontend_service PRIVATE ${CMAKE_SOURCE_DIR})

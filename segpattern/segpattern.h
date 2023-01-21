@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include "block-sound-mem/block-sound-mem.h"
 
 enum gka_ease { NO_EASE = 0, EASE_IN, EASE_IN_OUT, EASE_OUT };
 

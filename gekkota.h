@@ -1,5 +1,4 @@
 #include "gekkota-external.h"
-#include <blend2d.h>
 
 using namespace std;
 
@@ -13,7 +12,6 @@ typedef void (*void_fptr)();
 #include "./service/service.h"
 #include "./engine/engine.h"
 #include "./audio-output/audio.h"
-#include "./segpattern/segpattern.h"
 #include "./midi/midi.h"
 #include "./instrument/instrument.h"
 #include "./instrument/dispatch.h"

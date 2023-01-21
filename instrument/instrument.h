@@ -10,20 +10,20 @@ struct Instrument {
 };
 
 struct InstrumentRouter {
-  vector<GkaSoundEvent *> events;
-  virtual void submit(GkaSoundEvent *sound);
+  // vector<GkaSoundEvent *> events;
+  // virtual void submit(GkaSoundEvent *sound);
   virtual void onMidi(gka_midi_event *event);
   vector<Instrument *> instruments;
 };
 
 struct KeysInstrument : Instrument {
-  vector<GkaSoundEvent *> events;
+  // vector<GkaSoundEvent *> events;
   Instrument *instrument;
   InstrumentRouter *router;
   virtual void onMidi(gka_midi_event *event);
   virtual void openNote(gka_midi_event *event);
   virtual void closeNote(gka_midi_event *event);
-  GkaSoundEvent *sound_by_key[128];
+  // GkaSoundEvent *sound_by_key[128];
 
   KeysInstrument(InstrumentRouter *router);
 };

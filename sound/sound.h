@@ -1,5 +1,4 @@
 #include <math.h>
-#include "block-sound-mem/block-sound-mem.h"
 #include "segpattern/segpattern.h"
 
 #define MAX_PHASE 2. * M_PI

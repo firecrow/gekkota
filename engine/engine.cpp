@@ -3,7 +3,7 @@
 static const char *device = "hw:3,0"; /* playback device */
 
 static double generate_frame_value(
-    Title &ctx, vector<GkaSoundEvent *> blocks, gka_timeint local,
+    Title &ctx, vector<struct gka_mem_block *> blocks, gka_timeint local,
     const uint32_t rate
 ) {
   double frame_value = 0.0;
@@ -23,13 +23,15 @@ static double generate_frame_value(
             local - e->values.event.start, e->values.event.repeat
         );
         frame_value += gka_get_frame_value_from_event(
-            m, e->values.event.repeat, local_repeat, rate
+            m, e, e->values.event.repeat, local_repeat, rate
         );
       } else {
-        frame_value += s->getFrameValue(m, e->values.event.start, local, rate);
+        frame_value += gka_get_frame_value_from_event(
+            m, e, e->values.event.start, local, rate
+        );
       }
 
-      soundlp = gka_entry_next(m, soundlp);
+      soundlp = gka_entry_next(m, soundlp, GKA_SOUND_EVENT);
     }
   }
 
@@ -90,7 +92,7 @@ static void generate_sine(
     local = elapsed + frame;
 
     frame_value =
-        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params);
+        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
 
     res = frame_value * maxval;
     int i;

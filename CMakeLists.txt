@@ -44,7 +44,7 @@ target_link_libraries(Gekkota xkbcommon)
 target_link_libraries(Gekkota /usr/local/share/static/libblend2d.a)
 target_link_libraries(Gekkota asound)
 
-target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../)
+target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../segpattern)
 target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../block-sound-mem)
 target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR}/../time)

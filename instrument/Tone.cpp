@@ -1,7 +1,8 @@
 #include "../gekkota.h"
 
 gka_local_address_t Tone::constructSound(
-    struct gka_entry *blk, double freq, double duration, double repeat_every
+    struct gka_mem_block *blk, double freq, gka_time_t duration,
+    gka_time_t repeat_every
 ) {
 
   gka_local_address_t freq_pattern_segs =
@@ -10,27 +11,29 @@ gka_local_address_t Tone::constructSound(
   gka_local_address_t vol_pattern_segs =
       gka_segment_create(blk, 0, freq, GKA_EASE_OUT);
   gka_segpattern_add_segment_values(
-      m, volume_segs, BEAT_NS_32nds / 16, 0.2, GKA_EASE_IN
+      blk, vol_pattern_segs, BEAT_NS_32nds / 16, 0.2, GKA_EASE_IN
   );
   gka_segpattern_add_segment_values(
-      m, volume_segs, BEAT_NS_32nds * 8, 0.0, GKA_EASE_OUT
+      blk, vol_pattern_segs, BEAT_NS_32nds * 8, 0.0, GKA_EASE_OUT
   );
-  j gka_local_address_t soundlp =
-      gka_sound_create(m, freq_pattern_seg, vol_pattern_seg);
+  gka_local_address_t soundlp =
+      gka_sound_create(blk, freq_pattern_segs, vol_pattern_segs);
 
   gka_local_address_t eventlp =
-      gka_sound_event_create(m, soundlp, 0, repeat_time);
+      gka_sound_event_create(blk, soundlp, 0, repeat_every);
 
   return eventlp;
 }
 
-gka_local_address_t Tone::constructKey(double freq, long duration) {
+gka_local_address_t Tone::constructKey(
+    struct gka_mem_block_t *blk, double freq, gka_time_t duration
+) {
   return 0;
   /*
-double fluctuate_tone = 3.0;
-vector<GkaSound *> group = {};
-int GROUP_SIZE = 1;
-for (int i = 0; i < GROUP_SIZE; i++) {
+  double fluctuate_tone = 3.0;
+  vector<GkaSound *> group = {};
+  int GROUP_SIZE = 1;
+  for (int i = 0; i < GROUP_SIZE; i++) {
   double local_freq =
       freq + fluctuate_tone * (rand() / RAND_MAX) - (fluctuate_tone * 0.5);
 
@@ -46,10 +49,10 @@ for (int i = 0; i < GROUP_SIZE; i++) {
   GkaSound *sound = new GkaSound(freq_segs, volume_segs, distortion_segs);
   sound->phase = (rand() / RAND_MAX) * MAX_PHASE;
   group.push_back(sound);
-}
+  }
 
-GkaSoundEvent *eventg = new GkaSoundEvent(group, NULL, NULL);
+  GkaSoundEvent *eventg = new GkaSoundEvent(group, NULL, NULL);
 
-return eventg;
-*/
+  return eventg;
+  */
 }
