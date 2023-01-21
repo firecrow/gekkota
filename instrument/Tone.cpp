@@ -11,7 +11,7 @@ gka_local_address_t Tone::constructSound(
 
   // volume
   gka_local_address_t vol_pattern_segs =
-      gka_segment_new(blk, 0, 0.0, GKA_LINEAR);
+      gka_segment_new(blk, 0, 0.0, GKA_EASE_IN);
 
   gka_segpattern_add_segment_values(
       blk, vol_pattern_segs, BEAT_NS_32nds / 16, 0.2, GKA_EASE_IN

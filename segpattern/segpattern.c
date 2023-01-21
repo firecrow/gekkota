@@ -41,16 +41,16 @@ gka_apply_transition(
 ){
   switch(transition){
     case GKA_CLIFF:
-      square_ease(&progress, segment, start, end); 
+      square_ease(progress, segment, start, end); 
       break;
     case GKA_LINEAR:
-      linear_ease(&progress, segment, start, end); 
+      linear_ease(progress, segment, start, end); 
       break;
     case GKA_EASE_IN:
-      ease_in(&progress, segment, start, end); 
+      ease_in(progress, segment, start, end); 
       break;
     case GKA_EASE_OUT:
-      ease_out(&progress, segment, start, end); 
+      ease_out(progress, segment, start, end); 
       break;
   }
 }
@@ -227,7 +227,6 @@ double value_from_segment(
   double segment_value =
       segment->values.segment.value + ((next->values.segment.value - segment->values.segment.value) * progress);
 
-  printf("%ld, %lf %lf\n", offset, progress, segment_value);
   if(0){
     printf("no next found running algo\n");
   }
