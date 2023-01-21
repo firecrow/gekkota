@@ -3,10 +3,10 @@
 
 using namespace std;
 #include "gekkota-external.h"
-#include "gka_time.h"
+#include "time/gka_time.h"
 #include "../common/test_common.h"
 extern "C" {
-#include "sound.h"
+#include "sound/sound.h"
 }
 #include "../debug.c"
 
