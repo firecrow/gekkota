@@ -3,33 +3,36 @@
 static const char *device = "hw:3,0"; /* playback device */
 
 static double generate_frame_value(
-    Title &ctx, vector<GkaSoundEvent *> events, gka_timeint local,
+    Title &ctx, vector<GkaSoundEvent *> blocks, gka_timeint local,
     const uint32_t rate
 ) {
   double frame_value = 0.0;
   int sound_id = 0;
-  for (GkaSoundEvent *s : events) {
-    // fprintf(Title::instance.logger.file, "rendering sound %d\n", sound_id++);
-    if (s->repeat != nullptr) {
-      gka_timeint local_repeat;
-      if (s->repeat->start > local) {
+
+  for (struct gka_mem_block *m : blocks) {
+    struct gka_entry *head = gka_pointer(m, 0);
+    gka_local_address_t soundlp = head->values.link.addr;
+    while (soundlp) {
+      struct gka_entry *e = gka_pointer(m, soundlp);
+      if (e->values.event.start > local) {
         continue;
       }
-      if (s->repeat->time == 0) {
-        continue;
+      if (e->values.event.repeat) {
+        gka_timeint local_repeat;
+        local_repeat = gka_time_modulus(
+            local - e->values.event.start, e->values.event.repeat
+        );
+        frame_value += gka_get_frame_value_from_event(
+            m, e->values.event.repeat, local_repeat, rate
+        );
+      } else {
+        frame_value += s->getFrameValue(m, e->values.event.start, local, rate);
       }
-      local_repeat =
-          gka_time_modulus(local - s->repeat->start, s->repeat->time);
-      frame_value += s->getFrameValue(s->repeat->start, local_repeat, rate);
-      // fprintf(
-      //     ctx.logger.file, "local/local repeat: %ld/%ld\n", local,
-      //     local_repeat
-      //);
-    } else {
-      // fprintf(Title::instance.logger.file, "from local %ld\n", local);
-      frame_value += s->getFrameValue(s->gotime, local, rate);
+
+      soundlp = gka_entry_next(m, soundlp);
     }
   }
+
   fprintf(Title::instance.logger.file, "%lf\n", frame_value);
   return frame_value;
 }
@@ -87,7 +90,7 @@ static void generate_sine(
     local = elapsed + frame;
 
     frame_value =
-        generate_frame_value(*ctx, ctx->sound_events, local, gka_params);
+        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params);
 
     res = frame_value * maxval;
     int i;

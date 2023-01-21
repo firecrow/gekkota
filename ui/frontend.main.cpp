@@ -24,8 +24,9 @@ int main(int argc, char *argv[]) {
 
   title.Init();
 
-  SoundEvent *tone = Tone::constructSound(440.0, 0.5, 2.0);
-  title.sound_events.push_back(tone);
+  struct gka_mem_block *m = gka_alloc_memblock(64 * GKA_SEGMENT_SIZE);
+  SoundEvent *tone = Tone::constructSound(m, 440.0, 0.5, 2.0);
+  title.sound_blocks.push_back(m);
 
   KeysInstrument *Keys = new KeysInstrument(title.midiRouter);
   title.midiRouter->instruments.push_back(Keys);

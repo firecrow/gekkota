@@ -2,7 +2,7 @@
 
 Title::Title() {
   printf("\x1b[31mTitle inst x2\x1b[0m\n");
-  this->sound_events = {};
+  this->sound_blocks = {};
   this->midiRouter = new InstrumentRouter();
   this->start_time = 0;
 }
