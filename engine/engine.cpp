@@ -84,20 +84,22 @@ static void generate_sine(
   int frame = 0;
   elapsed = gka_now() - ctx->start_time;
 
-  frame++;
-  res = 0;
-  frame_value = 0.0;
-  local = elapsed + frame;
+  while (count-- > 0) {
+    frame++;
+    res = 0;
+    frame_value = 0.0;
+    local = elapsed + frame;
 
-  frame_value =
-      generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
+    frame_value =
+        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
 
-  res = frame_value * maxval;
-  int i;
-  for (chn = 0; chn < gka_params.channels; chn++) {
-    for (i = 0; i < bps; i++)
-      *(samples[chn] + i) = (res >> i * 8) & 0xff;
-    samples[chn] += steps[chn];
+    res = frame_value * maxval;
+    int i;
+    for (chn = 0; chn < gka_params.channels; chn++) {
+      for (i = 0; i < bps; i++)
+        *(samples[chn] + i) = (res >> i * 8) & 0xff;
+      samples[chn] += steps[chn];
+    }
   }
 }
 

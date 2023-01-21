@@ -22,10 +22,9 @@ void test_print_entry(struct gka_entry *e) {
     printf(" = %ld:%lf", e->values.segment.start_time, e->values.segment.value);
   } else if (e->values.all.type == GKA_SOUND) {
     printf(
-        " freq -> %ld, volume -> %ld, phase:%lf, step:%lf",
+        " freq -> %ld, volume -> %ld, phase:%lf",
         e->values.sound.freq / GKA_SEGMENT_SIZE,
-        e->values.sound.volume / GKA_SEGMENT_SIZE, e->values.sound.phase,
-        e->values.sound.step
+        e->values.sound.volume / GKA_SEGMENT_SIZE, e->values.sound.phase
     );
   } else if (e->values.all.type == GKA_SOUND_EVENT) {
     printf(

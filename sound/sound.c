@@ -62,12 +62,13 @@ gka_local_address_t gka_sound_event_create(
 
 gka_decimal_t gka_get_frame_value_from_event(
     struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
-    gka_time_t local, const long rate
+    gka_time_t local, const uint32_t rate
 ) {
 
   gka_local_address_t soundlp = event->values.event.sounds;
   double base = 1.0;
   double value = 0.0;
+  int idx = 0;
   while (soundlp) {
     double position = local - start;
     struct gka_entry *s = gka_pointer(blk, soundlp);
@@ -81,21 +82,16 @@ gka_decimal_t gka_get_frame_value_from_event(
       volume = 1.0;
     }
 
+    // reconcile phase for next time
+    double step = MAX_PHASE * freq / (double)rate; 
+
     value = (sin(s->values.sound.phase) * volume);
 
-    // reconcile phase for next time
-    s->values.sound.step = MAX_PHASE * freq / (double)rate;
-    s->values.sound.phase += s->values.sound.step;
+    s->values.sound.phase += step;
+
     if (s->values.sound.phase >= MAX_PHASE) {
       s->values.sound.phase -= MAX_PHASE;
     }
-
-    printf("freq:%lf\n", freq);
-    printf("volume:%lf\n", volume);
-    printf("phase:%lf\n", s->values.sound.phase);
-    printf("step:%lf\n", s->values.sound.step);
-
-    printf("value:%lf\n", value);
 
     // increment to next sound
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND);

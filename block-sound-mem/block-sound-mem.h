@@ -82,7 +82,6 @@ struct gka_entry {
     } event;
     struct {
       gka_operand_t type;
-      gka_subdecimal_t step;
       gka_decimal_t phase;
       gka_local_address_t freq;
       gka_local_address_t volume;

@@ -17,5 +17,5 @@ gka_local_address_t gka_sound_event_place(struct gka_mem_block *blk);
 
 gka_decimal_t gka_get_frame_value_from_event(
     struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
-    gka_time_t local, const long rate
+    gka_time_t local, const uint32_t rate
 );
