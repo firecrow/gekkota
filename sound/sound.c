@@ -26,11 +26,29 @@ gka_local_address_t gka_sound_event_create(
     struct gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
     gka_time_t repeat
 ) {
-  gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
 
-  if (localp == GKA_BOUNDRY_ACTION) {
-    fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
-    return GKA_MEMORY_FAILURE;
+  gka_local_address_t localp = 0;
+
+  struct gka_entry *head = gka_pointer(blk, 0);
+  // this is the first sound becuase the entry record does not yet link to a starting place
+  if(head->values.all.type == GKA_UNSPECIFIED){
+    head->values.all.type = GKA_NEXT_LOCAL;
+
+    localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE*2);
+    if (localp == GKA_BOUNDRY_ACTION) {
+      fprintf(stderr, "Error allocating segment %s:%d\n", __FILE__, __LINE__);
+      return GKA_MEMORY_FAILURE;
+    }
+
+    head->values.link.addr = localp;
+
+    gka_local_address_t neighbour_address = gka_next_local(blk, localp);
+    gka_set_entry_status(blk, neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
+
+
+  }else if(head->values.all.type == GKA_NEXT_LOCAL){
+    printf("\x1b[36mnth from %ld\x1b[0m\n", head->values.link.addr/GKA_SEGMENT_SIZE);
+    localp = gka_add_entry_to_set(blk, head->values.link.addr, GKA_SOUND_EVENT);
   }
 
   struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);

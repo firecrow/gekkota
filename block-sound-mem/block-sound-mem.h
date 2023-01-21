@@ -108,4 +108,7 @@ gka_local_address_t
 gka_next_local(struct gka_mem_block *blk, gka_local_address_t localp);
 
 gka_local_address_t
-gka_extend_entry_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type);
+gka_extend_entry(struct gka_mem_block *blk, gka_local_address_t localp);
+
+gka_local_address_t
+gka_add_entry_to_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type);

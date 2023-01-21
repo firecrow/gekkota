@@ -74,8 +74,19 @@ int gka_claim_entry(struct gka_mem_block *blk, gka_local_address_t localp){
 }
 
 gka_local_address_t
-gka_extend_entry_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
-    printf("\x1b[36mextending\n\x1b[0m");
+gka_add_entry_to_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
+  gka_local_address_t next = localp;
+  gka_local_address_t last = next;
+  while(next){
+    last = next;
+    next = gka_entry_next(blk, localp, type);
+  }
+  printf("rocking on from last:%ld\n", last/GKA_SEGMENT_SIZE);
+  return gka_extend_entry(blk, last);
+}
+
+gka_local_address_t
+gka_extend_entry(struct gka_mem_block *blk, gka_local_address_t localp){
 
   gka_local_address_t neighbour_address = gka_next_local(blk, localp);
 
@@ -97,6 +108,7 @@ gka_extend_entry_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_
     exit(1);
     return 0;
   }
+
   if(next_neighbour_address == GKA_BOUNDRY_ACTION || next_neighbour->values.all.type == GKA_UNSPECIFIED){
     if(!gka_claim_entry(blk, next_neighbour_address)){
       fprintf(stderr, "FATAL MEMORY CLOBBER %s:%d\n", __FILE__, __LINE__);
@@ -107,19 +119,17 @@ gka_extend_entry_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_
     gka_set_entry_status(blk, next_neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
     next_neighbour->values.all.type = GKA_RESERVED_BY_NEIGHBOUR;
 
-    printf("\x1b[36mavailable reserving next next and returning newlp\n\x1b[0m");
     return neighbour_address;
+  }else if(neighbour->values.all.type == GKA_RESERVED_BY_NEIGHBOUR){
+    gka_local_address_t newlp =
+    gka_allocate_space(blk, GKA_SEGMENT_SIZE);
+    neighbour->values.all.type = GKA_NEXT_LOCAL;
+    neighbour->values.link.addr = newlp;
+
+    return newlp;
   }else{
-    if(neighbour->values.all.type == GKA_RESERVED_BY_NEIGHBOUR){
-      printf("\x1b[36mavailable reserving next next and returning LINK newlp\n\x1b[0m");
-
-      gka_local_address_t newlp =
-        gka_allocate_space(blk, GKA_SEGMENT_SIZE);
-      neighbour->values.all.type = GKA_NEXT_LOCAL;
-      neighbour->values.link.addr = newlp;
-
-      return newlp;
-    }
+    fprintf(stderr, "BLOCK BOUNDS REACHED %s:%d\n", __FILE__, __LINE__);
+    exit(1);
   }
   return 0;
 }

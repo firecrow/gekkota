@@ -84,13 +84,12 @@ void gka_set_entry_status(struct gka_mem_block *blk, gka_local_address_t localp,
 
 gka_local_address_t gka_extend_segment(
      struct gka_mem_block *blk, gka_local_address_t current, struct gka_entry *seg){
-  gka_local_address_t newlp = gka_extend_entry_set(blk, current, GKA_SEGMENT_VALUE);
+  gka_local_address_t newlp = gka_extend_entry(blk, current);
   if(newlp == GKA_BOUNDRY_ACTION){
     fprintf(stderr, "Error extending segment %s:%d\n", __FILE__, __LINE__);
     return 0;
   }
 
-  printf("entering int into %ld\n", newlp / GKA_SEGMENT_SIZE);
   struct gka_entry *s = gka_pointer(blk, newlp);
   s->values.all.type = GKA_SEGMENT_VALUE;
   s->values.segment.start_time = seg->values.segment.start_time;
