@@ -2,7 +2,7 @@
 
 AudioOutputService::AudioOutputService() {
   Engine *engine = &Engine::instance;
-  engine->handlers.push_back(new HostRenderHandler());
+  engine->handlers.push_back(new HipDeviceRenderHandler());
 }
 
 AudioOutputService _audiosvc;
