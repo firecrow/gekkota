@@ -1,3 +1,6 @@
+#ifndef __GKA_SOUND_HEADER
+#define __GKA_SOUND_HEADER
+
 #include <math.h>
 #include "segpattern/segpattern.h"
 
@@ -19,3 +22,5 @@ gka_decimal_t gka_get_frame_value_from_event(
     struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
     gka_time_t local, const uint32_t rate
 );
+
+#endif

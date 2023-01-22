@@ -9,7 +9,7 @@
 int midi_accept() {
   int i;
   int err;
-  char *device_in = "hw:3,0,0"; /*NULL;*/
+  char *device_in = "hw:0,0,0"; /*NULL;*/
   int clock_type = -1;
   unsigned char buf[1024];
   ssize_t r;

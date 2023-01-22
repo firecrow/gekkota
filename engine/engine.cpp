@@ -40,14 +40,9 @@ static double generate_frame_value(
 
 static void generate_sine(
     const struct gka_audio_params &gka_params,
-    const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count
+    const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count,
+    const double *data
 ) {
-  double volume = 0.0;
-  gka_timeint elapsed;
-
-  Title *ctx = &Title::instance;
-
-  static double max_phase = 2. * M_PI;
 
   unsigned char *samples[gka_params.channels];
   int steps[gka_params.channels];
@@ -68,10 +63,6 @@ static void generate_sine(
     samples[chn] = /*(signed short *)*/ (
         ((unsigned char *)areas[chn].addr) + (areas[chn].first / 8)
     );
-    if ((areas[chn].step % 16) != 0) {
-      printf("areas[%u].step == %u, aborting...\n", chn, areas[chn].step);
-      exit(EXIT_FAILURE);
-    }
     steps[chn] = areas[chn].step / 8;
     samples[chn] += offset * steps[chn];
   }
@@ -82,18 +73,9 @@ static void generate_sine(
 
   /* fill the channel areas */
   int frame = 0;
-  elapsed = gka_now() - ctx->start_time;
 
-  while (count-- > 0) {
-    frame++;
-    res = 0;
-    frame_value = 0.0;
-    local = elapsed + frame;
-
-    frame_value =
-        generate_frame_value(*ctx, ctx->sound_blocks, local, gka_params.rate);
-
-    res = frame_value * maxval;
+  for (int f = 0; f < count; f++) {
+    res = data[f] * maxval;
     int i;
     for (chn = 0; chn < gka_params.channels; chn++) {
       for (i = 0; i < bps; i++)
@@ -101,6 +83,26 @@ static void generate_sine(
       samples[chn] += steps[chn];
     }
   }
+}
+
+static const double *generate_data(int count, const uint32_t rate) {
+  double *data = (double *)malloc(sizeof(double) * count);
+  if (data == nullptr) {
+    memory_error(
+        GKA_GLOBAL_MEMORY_ERROR, "Error allocating in generate data\n"
+    );
+    return nullptr;
+  }
+
+  Title *ctx = &Title::instance;
+  gka_time_t elapsed = gka_now() - ctx->start_time;
+  gka_time_t local;
+  for (int f = 0; f < count; f++) {
+    local = elapsed + f;
+
+    data[f] = generate_frame_value(*ctx, ctx->sound_blocks, local, rate);
+  }
+  return data;
 }
 
 static int xrun_recovery(snd_pcm_t *handle, int err) {
@@ -162,14 +164,13 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
   gka_output_objects *output_objects = allocate_framegroup_memory(gka_params);
 
-  double volume = 0.0;
   signed short *ptr;
   int r, cptr;
 
   while (AudioOutputService::running) {
-    generate_sine(gka_params, output_objects->areas, 0, period_size);
 
-    // fprintf(Title::instance.logger.file, "sine generated\n");
+    const double *data = generate_data(period_size, gka_params.rate);
+    generate_sine(gka_params, output_objects->areas, 0, period_size, data);
 
     ptr = output_objects->samples;
     cptr = period_size;

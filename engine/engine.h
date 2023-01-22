@@ -8,6 +8,16 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include <functional>
+#include <iostream>
+
+extern "C" {
+#include "sound/sound.h"
+#include "error/error.h"
+}
+
+using namespace std;
+
 // clang-format off
 #define GkaSetAlsaHw(FUNC) \
   do { \
@@ -56,3 +66,19 @@ int setup_hw(struct gka_audio_params *gka_params);
 int write_loop(
     const struct gka_audio_params &gka_params
 );
+
+class RenderHandler
+{
+public:
+  virtual function<void(void)> getAction();
+  struct gka_mem_block *src;
+  gka_decimal_t *dest;
+  size_t count;
+};
+
+class HostRenderHandler: RenderHandler
+{
+public:
+  HostRenderHandler(struct gka_mem_block *blk, int count);
+  virtual function<void(void)> getAction();
+};
