@@ -21,6 +21,7 @@ double *Engine::render(
   for (struct gka_mem_block *m : blocks) {
     RenderHandler *h = handler->makeInstance(m, count, rate);
     thd.push_back(new thread(h->getAction(elapsed)));
+    hinst.push_back(h);
   }
 
   for (thread *t : thd) {
