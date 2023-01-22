@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <vector>
 
 #include <functional>
 #include <iostream>
@@ -116,7 +117,7 @@ public:
   };
   gka_decimal_t *dest;
   int count;
-  RenderHandler *marryToDest(gka_decimal_t *src){
+  void marryToDest(gka_decimal_t *src){
     for(int i = 0; i < count; i ++){
       dest[i] += src[i];
     }

@@ -37,10 +37,6 @@ gka_local_address_t gka_extend_segment(
     struct gka_entry *seg
 );
 
-gka_local_address_t gka_entry_next(
-    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
-);
-
 void square_ease(
     double *progress, struct gka_entry *segment, double start, double end
 );
@@ -72,10 +68,6 @@ double value_from_segment(
 
 struct gka_entry *gka_segment_from_pattern(
     struct gka_mem_block *blk, gka_local_address_t currentlp, gka_time_t offset
-);
-
-void gka_set_entry_status(
-    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
 );
 
 gka_local_address_t gka_segment_new(

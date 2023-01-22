@@ -4,6 +4,20 @@ include(CTest)
 
 add_library(compiler_flags INTERFACE)
 target_compile_features(compiler_flags INTERFACE cxx_std_17)
+
+if("$ENV{GPU}" STREQUAL "hip")
+    message("setting to gpu")
+    set(CMAKE_C_COMPILER "/opt/rocm/bin/hipcc")
+    set(CMAKE_CXX_COMPILER "/opt/rocm/bin/hipcc")
+elseif("$ENV{GPU}" STREQUAL "cuda")
+    message("cuda not yet implemented, use `hip` instead")
+else()
+    message("setting to non-gpu")
+    set(CMAKE_C_COMPILER "/usr/bin/clang")
+    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+endif()
+
+message("using compilers C,C++ " ${CMAKE_C_COMPILER} "," ${CMAKE_CXX_COMPILER})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
@@ -53,3 +67,10 @@ target_link_libraries(Gekkota /usr/local/share/static/libblend2d.a)
 target_link_libraries(Gekkota asound)
 
 target_include_directories(Gekkota PRIVATE ${CMAKE_SOURCE_DIR})
+
+
+
+
+
+
+

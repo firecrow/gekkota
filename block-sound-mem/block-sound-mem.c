@@ -133,3 +133,30 @@ gka_extend_entry(struct gka_mem_block *blk, gka_local_address_t localp){
   }
   return 0;
 }
+
+gka_local_address_t gka_entry_next(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type){
+  if(0){
+    printf("finding next from localp: %ld\n", localp/GKA_SEGMENT_SIZE);
+  }
+
+  gka_local_address_t newlp = gka_next_local(blk, localp);
+  if(newlp == GKA_BOUNDRY_ACTION){
+    fprintf(stderr, "Error getting next address %s:%d\n", __FILE__, __LINE__);
+    exit(1);
+  }
+  struct gka_entry *s = gka_pointer(blk, newlp);
+  if(s->values.all.type == GKA_NEXT_LOCAL){
+    return s->values.link.addr;
+  }else if(s->values.all.type == type){
+    if(0){
+      printf("found newlp: %ld\n", newlp/ GKA_SEGMENT_SIZE);
+    }
+    return newlp;
+  }
+  return GKA_BOUNDRY_ACTION;
+}
+
+void gka_set_entry_status(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type) {
+  struct gka_entry *s = gka_pointer(blk, localp);
+  s->values.all.type = type;
+}

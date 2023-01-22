@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef __GKA_MEM_BLOCK_HEADER
 #define __GKA_MEM_BLOCK_HEADER
@@ -112,7 +113,16 @@ gka_next_local(struct gka_mem_block *blk, gka_local_address_t localp);
 gka_local_address_t
 gka_extend_entry(struct gka_mem_block *blk, gka_local_address_t localp);
 
-gka_local_address_t
-gka_add_entry_to_set(struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type);
+gka_local_address_t gka_add_entry_to_set(
+    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
+);
+
+void gka_set_entry_status(
+    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
+);
+
+gka_local_address_t gka_entry_next(
+    struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
+);
 
 #endif
