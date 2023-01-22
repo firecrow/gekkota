@@ -13,7 +13,7 @@ __device__ void square_ease_hipdevice(
 __device__ void ease_in_hipdevice(
     double *progress, struct gka_entry *segment, double start, double end
 ) {
-  *progress *= _hipdevice(*progress);
+  *progress *= (*progress);
 }
 
 __device__ void ease_flip_hipdevice(
@@ -33,10 +33,10 @@ __device__ void ease_out_hipdevice(
 __device__ void ease_inout_hipdevice(
     double *progress, struct gka_entry *segment, double start, double end
 ) {
-  *progress *= _hipdevice(*progress);
+  *progress *= (*progress);
 }
 
-__device__ gka_apply_transition_hipdevice(
+__device__ void gka_apply_transition_hipdevice(
     double *progress, gka_operand_t transition, struct gka_entry *segment,
     double start, double end
 ) {
@@ -56,6 +56,29 @@ __device__ gka_apply_transition_hipdevice(
   }
 }
 
+__device__ gka_local_address_t
+gka_to_local_hipdevice(struct gka_mem_block *blk, struct gka_entry *entry) {
+  return (gka_global_t)entry - ((gka_global_t)blk->data);
+}
+
+__device__ struct gka_entry *
+gka_pointer_hipdevice(struct gka_mem_block *blk, gka_local_address_t localp) {
+  if (localp < 0 || localp > blk->allocated) {
+    return GKA_BOUNDRY_ACTION;
+  }
+  return (struct gka_entry *)((char *)blk->data + localp);
+}
+
+__device__ gka_local_address_t gka_next_local_hipdevice(
+    struct gka_mem_block *blk, gka_local_address_t localp
+) {
+  gka_local_address_t next_would_be = localp + GKA_SEGMENT_SIZE;
+  if (next_would_be > blk->allocated) {
+    return GKA_BOUNDRY_ACTION;
+  }
+  return next_would_be;
+}
+
 __device__ gka_local_address_t gka_entry_next_hipdevice(
     struct gka_mem_block *blk, gka_local_address_t localp, gka_operand_t type
 ) {
@@ -63,12 +86,11 @@ __device__ gka_local_address_t gka_entry_next_hipdevice(
     printf("finding next from localp: %ld\n", localp / GKA_SEGMENT_SIZE);
   }
 
-  gka_local_address_t newlp = gka_next_local(blk, localp);
+  gka_local_address_t newlp = gka_next_local_hipdevice(blk, localp);
   if (newlp == GKA_BOUNDRY_ACTION) {
-    fprintf(stderr, "Error getting next address %s:%d\n", __FILE__, __LINE__);
-    exit(1);
+    return GKA_BOUNDRY_ACTION;
   }
-  struct gka_entry *s = gka_pointer(blk, newlp);
+  struct gka_entry *s = gka_pointer_hipdevice(blk, newlp);
   if (s->values.all.type == GKA_NEXT_LOCAL) {
     return s->values.link.addr;
   } else if (s->values.all.type == type) {
@@ -80,6 +102,27 @@ __device__ gka_local_address_t gka_entry_next_hipdevice(
   return GKA_BOUNDRY_ACTION;
 }
 
+__device__ struct gka_entry *gka_segment_from_pattern_hipdevice(
+    struct gka_mem_block *blk, gka_local_address_t currentlp, gka_time_t offset
+) {
+  struct gka_entry *next = gka_pointer_hipdevice(blk, currentlp);
+  struct gka_entry *current = next;
+  gka_local_address_t nextlp = 0;
+  while (next && next->values.segment.start_time < offset) {
+    current = next;
+    nextlp = gka_entry_next_hipdevice(
+        blk, gka_to_local_hipdevice(blk, next), GKA_SEGMENT_VALUE
+    );
+    if (nextlp == GKA_BOUNDRY_ACTION) {
+      next = NULL;
+    } else {
+      next = gka_pointer_hipdevice(blk, nextlp);
+    }
+  }
+
+  return current;
+}
+
 __device__ double value_from_segment_hipdevice(
     struct gka_mem_block *blk, gka_local_address_t current, double base_value,
     gka_time_t offset
@@ -89,11 +132,13 @@ __device__ double value_from_segment_hipdevice(
       gka_segment_from_pattern_hipdevice(blk, current, offset);
   struct gka_entry *next = NULL;
 
-  if_hipdevice(segment->values.segment.start_time < offset) {
+  if (segment->values.segment.start_time < offset) {
     gka_local_address_t nextlp = gka_entry_next_hipdevice(
-        blk, gka_to_local(blk, segment), GKA_SEGMENT_VALUE
+        blk, gka_to_local_hipdevice(blk, segment), GKA_SEGMENT_VALUE
     );
-    if_hipdevice(nextlp) { next = gka_pointer_hipdevice(blk, nextlp); }
+    if (nextlp) {
+      next = gka_pointer_hipdevice(blk, nextlp);
+    }
   }
 
   if (!next) {
@@ -137,14 +182,14 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     );
 
     if (volume > 1.0 || volume < 0.0) {
-      printf_hipdevice("ERROR WITH VOLUME:%lf\n", volume);
+      printf("ERROR WITH VOLUME:%lf\n", volume);
       volume = 1.0;
     }
 
     // reconcile phase for next time
     double step = MAX_PHASE * freq / (double)rate;
 
-    value = _hipdevice(sin(s->values.sound.phase) * volume);
+    value = (sin(s->values.sound.phase) * volume);
 
     s->values.sound.phase += step;
 
@@ -156,6 +201,16 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND);
   }
   return value;
+}
+
+__device__ gka_time_t
+gka_time_modulus_hipdevice(gka_time_t src, gka_time_t mod) {
+  gka_time_t remainder = src;
+  if (src > mod) {
+    gka_time_t times = src / mod;
+    remainder = src - mod * times;
+  }
+  return remainder;
 }
 
 __device__ gka_decimal_t gka_frame_from_block_hipdevice(

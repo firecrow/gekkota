@@ -3,11 +3,11 @@
 #include "hip-device/hip-device-mem-blocks.c"
 
 __global__ void gkaHipProcessBlock(
-    gka_decimal_t *dest, gka_decimal_t *src, gka_time_t elapsed, int rate
+    gka_decimal_t *dest, struct gka_mem_block *src, gka_time_t elapsed, int rate
 ) {
   int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
   gka_time_t local = elapsed + frameId;
-  dest[frameId] = gka_frame_from_block(src, local, rate);
+  dest[frameId] = gka_frame_from_block_hipdevice(src, local, rate);
 }
 
 HipDeviceRenderHandler::HipDeviceRenderHandler() {}
@@ -38,14 +38,12 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
   }
   return [count = this->count, dest = this->dest, src = this->src,
           rate = this->rate, elapsed]() {
-    double *srcBuff;
+    struct gka_mem_block *srcBuff;
     double *destBuff;
-    hipMalloc((void **)&srcBuff, sizeof(gka_decimal_t) * count);
+    hipMalloc((void **)&srcBuff, src->allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
 
-    hipMemcpy(
-        srcBuff, src, sizeof(gka_decimal_t) * count, hipMemcpyHostToDevice
-    );
+    hipMemcpy(srcBuff, src, src->allocated, hipMemcpyHostToDevice);
 
     hipLaunchKernelGGL(
         gkaHipProcessBlock, dim3(1), dim3(count), 0, 0, destBuff, srcBuff,
