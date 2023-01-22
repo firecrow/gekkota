@@ -102,6 +102,19 @@ public:
   }
 };
 
+class HipDeviceRenderHandler: public RenderHandler
+{
+public:
+  HipDeviceRenderHandler();
+  RenderHandler *makeInstance(
+    struct gka_mem_block *src, int count, int rate
+  );
+  function<void(void)> getAction(gka_time_t elapsed);
+  ~HipDeviceRenderHandler(){
+    delete this->dest;
+  }
+};
+
 class RenderFinalizer 
 {
 public:
