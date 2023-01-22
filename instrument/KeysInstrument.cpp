@@ -31,7 +31,7 @@ void KeysInstrument::closeNote(gka_midi_event *event) {
     return;
   }
 
-  gka_timeint elapsed = gka_now() - Title::instance.start_time;
+  gka_time_t elapsed = gka_now() - Title::instance.start_time;
 
   sound->fadeOut(BEAT_NS_32nds, elapsed);
   */

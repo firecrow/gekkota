@@ -7,6 +7,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#include "time/gka_time.h"
 #include "segpattern/segpattern.h"
 
 #define MAX_PHASE 2. * M_PI

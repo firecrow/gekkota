@@ -1,4 +1,3 @@
-#include "engine.h"
 #include "gekkota.h"
 
 HostRenderHandler::HostRenderHandler() {}
@@ -13,9 +12,9 @@ RenderHandler *HostRenderHandler::makeInstance(
         "Error allocating destination array of doubles\n"
     );
   }
-  this->src = src;
-  this->count = count;
-  this->rate = rate;
+  inst->src = src;
+  inst->count = count;
+  inst->rate = rate;
   return inst;
 }
 

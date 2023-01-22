@@ -3,8 +3,7 @@
 static const char *device = "hw:4,0"; /* playback device */
 
 static double generate_frame_value(
-    vector<struct gka_mem_block *> blocks, gka_timeint local,
-    const uint32_t rate
+    vector<struct gka_mem_block *> blocks, gka_time_t local, const uint32_t rate
 ) {
   double frame_value = 0.0;
   int sound_id = 0;
@@ -48,7 +47,7 @@ static void generate_sine(
 
   int res = 0;
   double frame_value = 0;
-  gka_timeint local;
+  gka_time_t local;
 
   /* fill the channel areas */
   int frame = 0;

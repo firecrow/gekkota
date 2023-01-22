@@ -67,6 +67,18 @@ int write_loop(
     const struct gka_audio_params &gka_params
 );
 
+class RenderHandler {
+public:
+  virtual function<void(void)> getAction(gka_time_t elapsed){};
+  virtual RenderHandler *makeInstance(
+    struct gka_mem_block *src, int count, int rate
+  ){};
+  struct gka_mem_block *src;
+  gka_decimal_t *dest;
+  int count;
+  int rate;
+};
+
 class Engine {
   public:
   Engine();
@@ -75,17 +87,6 @@ class Engine {
   double *render(vector<struct gka_mem_block *>blocks, int count, uint32_t rate);
 };
 
-class RenderHandler {
-public:
-  virtual function<void(void)> getAction(gka_time_t elapsed);
-  virtual RenderHandler *makeInstance(
-    struct gka_mem_block *src, int count, int rate
-  );
-  struct gka_mem_block *src;
-  gka_decimal_t *dest;
-  int count;
-  int rate;
-};
 
 class HostRenderHandler: public RenderHandler
 {

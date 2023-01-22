@@ -1,1 +1,1 @@
-add_library(time OBJECT time_utils.cpp)
+add_library(time OBJECT time_utils.c)

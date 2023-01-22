@@ -1,9 +1,11 @@
-#include "engine.h"
 #include "gekkota.h"
+
 Engine _engine;
 Engine &Engine::instance = {_engine};
 
 using namespace std;
+
+Engine::Engine() {}
 
 double *Engine::render(
     vector<struct gka_mem_block *> blocks, int count, uint32_t rate
@@ -20,6 +22,7 @@ double *Engine::render(
   // crunch all the numbers:
   for (struct gka_mem_block *m : blocks) {
     RenderHandler *h = handler->makeInstance(m, count, rate);
+
     thd.push_back(new thread(h->getAction(elapsed)));
     hinst.push_back(h);
   }

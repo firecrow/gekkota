@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   title->Init();
 
   struct gka_mem_block *m = gka_alloc_memblock(64 * GKA_SEGMENT_SIZE);
-  Tone::constructSound(m, 440.0, 0.5, BEAT_NS_32nds * 32);
+  Tone::constructSound(m, 440.0, 0.5, BEAT_NS_32nds * 64);
   title->sound_blocks.push_back(m);
   printf(
       "pushing back a block of sounds at %ld %ld\n", m,
