@@ -3,35 +3,14 @@
 static const char *device = "hw:4,0"; /* playback device */
 
 static double generate_frame_value(
-    Title &ctx, vector<struct gka_mem_block *> blocks, gka_timeint local,
+    vector<struct gka_mem_block *> blocks, gka_timeint local,
     const uint32_t rate
 ) {
   double frame_value = 0.0;
   int sound_id = 0;
 
   for (struct gka_mem_block *m : blocks) {
-    struct gka_entry *head = gka_pointer(m, 0);
-    gka_local_address_t soundlp = head->values.link.addr;
-    while (soundlp) {
-      struct gka_entry *e = gka_pointer(m, soundlp);
-      if (e->values.event.start > local) {
-        continue;
-      }
-      if (e->values.event.repeat) {
-        gka_timeint local_repeat;
-        local_repeat = gka_time_modulus(
-            local - e->values.event.start, e->values.event.repeat
-        );
-        frame_value +=
-            gka_get_frame_value_from_event(m, e, 0, local_repeat, rate);
-      } else {
-        frame_value += gka_get_frame_value_from_event(
-            m, e, e->values.event.start, local, rate
-        );
-      }
-
-      soundlp = gka_entry_next(m, soundlp, GKA_SOUND_EVENT);
-    }
+    frame_value += gka_frame_from_block(m, local, rate);
   }
 
   fprintf(Title::instance.logger.file, "%lf\n", frame_value);
@@ -83,26 +62,6 @@ static void generate_sine(
       samples[chn] += steps[chn];
     }
   }
-}
-
-static const double *generate_data(int count, const uint32_t rate) {
-  double *data = (double *)malloc(sizeof(double) * count);
-  if (data == nullptr) {
-    memory_error(
-        GKA_GLOBAL_MEMORY_ERROR, "Error allocating in generate data\n"
-    );
-    return nullptr;
-  }
-
-  Title *ctx = &Title::instance;
-  gka_time_t elapsed = gka_now() - ctx->start_time;
-  gka_time_t local;
-  for (int f = 0; f < count; f++) {
-    local = elapsed + f;
-
-    data[f] = generate_frame_value(*ctx, ctx->sound_blocks, local, rate);
-  }
-  return data;
 }
 
 static int xrun_recovery(snd_pcm_t *handle, int err) {
@@ -169,7 +128,12 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
   while (AudioOutputService::running) {
 
-    const double *data = generate_data(period_size, gka_params.rate);
+    Engine *engine = &Engine::instance;
+    Title *ctx = &Title::instance;
+    const double *data =
+        engine->render(ctx->sound_blocks, period_size, gka_params.rate);
+
+    // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(gka_params, output_objects->areas, 0, period_size, data);
 
     ptr = output_objects->samples;

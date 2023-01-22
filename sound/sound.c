@@ -98,3 +98,30 @@ gka_decimal_t gka_get_frame_value_from_event(
   }
   return value;
 }
+
+gka_decimal_t gka_frame_from_block(struct gka_mem_block *blk, gka_time_t local, int rate){
+  gka_decimal_t frame_value = 0;
+  struct gka_entry *head = gka_pointer(blk, 0);
+  gka_local_address_t soundlp = head->values.link.addr;
+  while (soundlp) {
+    struct gka_entry *e = gka_pointer(blk, soundlp);
+    if (e->values.event.start > local) {
+      continue;
+    }
+    if (e->values.event.repeat) {
+      gka_time_t local_repeat;
+      local_repeat = gka_time_modulus(
+          local - e->values.event.start, e->values.event.repeat
+      );
+      frame_value +=
+          gka_get_frame_value_from_event(blk, e, 0, local_repeat, rate);
+    } else {
+      frame_value += gka_get_frame_value_from_event(
+          blk, e, e->values.event.start, local, rate
+      );
+    }
+
+    soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
+  }
+  return frame_value;
+}
