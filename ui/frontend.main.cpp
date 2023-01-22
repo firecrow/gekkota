@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   struct gka_audio_params gka_params = {
       .output_handle = 0,
       .device = "hw:3,0",
-      .rate = 96000,
+      .rate = 192000,
       .channels = 2,
       .buffer_time = 50000,
       .period_time = 10000,
