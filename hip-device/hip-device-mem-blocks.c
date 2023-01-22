@@ -186,13 +186,13 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
 
   double step = MAX_PHASE * freq / (double)rate;
 
-  s->values.sound.phase += step * frame;
+  s->values.sound.phase = step * 100000.0 * frame / 100000.0;
 
-  while (s->values.sound.phase >= MAX_PHASE) {
+  while (s->values.sound.phase > MAX_PHASE) {
     s->values.sound.phase -= MAX_PHASE;
   }
 
-  return (double)sinf(s->values.sound.phase) * volume;
+  return (double)sin(s->values.sound.phase) * volume;
 }
 
 __device__ gka_time_t

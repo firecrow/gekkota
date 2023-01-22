@@ -63,7 +63,7 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     hipFree(srcBuff);
     hipFree(destBuff);
 
-    for (int i = 0; i < 10 /*count*/; i++) {
+    for (int i = 0; i < count; i++) {
       printf("%lf\n", dest[i]);
     }
   };
