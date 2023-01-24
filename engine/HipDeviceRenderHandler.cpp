@@ -22,6 +22,7 @@ RenderHandler *HipDeviceRenderHandler::makeInstance(
         "Error allocating destination array of doubles for hip device\n"
     );
   }
+  printf("initializeing...%ld\n", count);
   inst->src = src;
   inst->count = count;
   inst->rate = rate;
@@ -45,10 +46,10 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     double *stepBuff;
     double *phaseBuff;
 
-    int soundCount = gka_count_sounds_in_block(src);
+    test_print_mem_block(src);
 
-    // printf("allocated a src buf of %ld for count %ld\n", src->allocated,
-    // count);
+    int soundCount = gka_count_sounds_in_block(src);
+    printf("sounds found %d\n", soundCount);
 
     hipMalloc((void **)&srcBuff, src->values.head.allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);

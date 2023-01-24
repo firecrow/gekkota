@@ -129,11 +129,14 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
     Engine *engine = &Engine::instance;
     Title *ctx = &Title::instance;
-    const double *data =
-        engine->render(ctx->sound_blocks, period_size, gka_params.rate);
+    const double *data = engine->render(
+        ctx->sound_blocks, gka_params.period_size, gka_params.rate
+    );
 
     // const double *data = generate_data(period_size, gka_params.rate);
-    generate_sine(gka_params, output_objects->areas, 0, period_size, data);
+    generate_sine(
+        gka_params, output_objects->areas, 0, gka_params.period_size, data
+    );
 
     ptr = output_objects->samples;
     cptr = period_size;

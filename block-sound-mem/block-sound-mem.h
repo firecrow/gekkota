@@ -29,6 +29,7 @@ typedef gka_value_t gka_time_t;
 
 enum gka_value_operand {
   GKA_UNSPECIFIED = 0,
+  GKA_HEAD,
   GKA_RESERVED_BY_NEIGHBOUR,
   GKA_SOUND,
   GKA_SOUND_EVENT,

@@ -31,8 +31,7 @@ gka_local_address_t gka_sound_event_create(
 
   struct gka_entry *head = gka_pointer(blk, 0);
   // this is the first sound becuase the entry record does not yet link to a starting place
-  if(head->values.all.type == GKA_UNSPECIFIED){
-    head->values.all.type = GKA_NEXT_LOCAL;
+  if(head->values.all.type == GKA_HEAD){
 
     localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE*2);
     if (localp == GKA_BOUNDRY_ACTION) {
@@ -40,7 +39,8 @@ gka_local_address_t gka_sound_event_create(
       return GKA_MEMORY_FAILURE;
     }
 
-    head->values.link.addr = localp;
+    printf("?\n");
+    head->values.head.addr = localp;
 
     gka_local_address_t neighbour_address = gka_next_local(blk, localp);
     gka_set_entry_status(blk, neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);

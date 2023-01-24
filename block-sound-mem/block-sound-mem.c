@@ -7,9 +7,10 @@ struct gka_entry *gka_alloc_memblock(gka_local_address_t size){
     exit(1);
   }
   memset(m, 0, size);
-  // reserve first slot for first sound event
+
   m->values.head.next_available = GKA_SEGMENT_SIZE;
   m->values.head.allocated = size;
+  m->values.all.type = GKA_HEAD;
 
   return m;
 }
@@ -31,7 +32,7 @@ struct gka_entry *gka_pointer(struct gka_entry *blk, gka_local_address_t localp)
     if(localp < 0 || localp > blk->values.head.allocated ){
         return GKA_BOUNDRY_ACTION;
     }
-    return (void *)(blk + localp);
+    return (void *)((gka_global_t)blk + localp);
 }
 
 struct gka_entry *gka_nth(struct gka_entry *blk, int offset){
@@ -158,6 +159,7 @@ int gka_count_sounds_in_block(struct gka_entry *blk) {
   int count = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
   gka_local_address_t soundlp = head->values.head.addr;
+  printf("\x1b[33mpoo %ld\x1b[0m\n", soundlp);
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
