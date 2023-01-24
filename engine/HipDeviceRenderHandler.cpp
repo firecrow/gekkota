@@ -7,10 +7,20 @@ __global__ void gkaHipSetSteps(
     int N
 ) {
   int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
-  if (frameId > N)
+  if (frameId >= N)
     return;
+
   gka_time_t local = elapsed + frameId;
   gka_set_steps_from_block_hipdevice(src, dest, frameId, local, rate, N);
+}
+
+__global__ void
+gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N) {
+  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
+  if (frameId >= N)
+    return;
+
+  gka_set_phases_for_event_hipdevice(dest, steps, frameId, period_size);
 }
 
 __global__ void gkaHipProcessBlock(
@@ -54,26 +64,36 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     struct gka_entry *srcBuff;
     double *destBuff;
     double *stepsBuff;
-    double *phaseBuff;
+    double *phasesBuff;
 
     test_print_mem_block(src);
 
     int soundCount = gka_count_sounds_in_block(src);
 
     hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
-    hipMalloc((void **)&phaseBuff, soundCount * count * sizeof(double));
+    hipMalloc((void **)&phasesBuff, soundCount * count * sizeof(double));
 
     double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
+    double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
 
     hipMalloc((void **)&srcBuff, src->values.head.allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
     hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
 
+    // calculate steps in parallel
     hipLaunchKernelGGL(
         gkaHipSetSteps, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
         stepsBuff, srcBuff, elapsed, rate, count
     );
+
+    // calculate phase in series
+    hipLaunchKernelGGL(
+        gkaHipSetPhases, dim3((soundCount / blockSize) + 1), dim3(blockSize), 0,
+        0, phasesBuff, stepsBuff, count, soundCount
+    );
+
     /*
+    launch the big one
     hipLaunchKernelGGL(
         gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0,
         0, destBuff, srcBuff, elapsed, rate
@@ -83,6 +103,11 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     // debug
     hipMemcpy(
         debugSteps, stepsBuff, sizeof(double) * count * soundCount,
+        hipMemcpyDeviceToHost
+    );
+
+    hipMemcpy(
+        debugPhases, phasesBuff, sizeof(double) * count * soundCount,
         hipMemcpyDeviceToHost
     );
     /*
@@ -95,8 +120,13 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     hipFree(srcBuff);
     hipFree(destBuff);
 
+    printf("steps...\n");
     for (int i = 0; i < 10 /*count*/; i++) {
       printf("%lf\n", debugSteps[i]);
+    }
+    printf("phases...\n");
+    for (int i = 0; i < 10 /*count*/; i++) {
+      printf("%lf\n", debugPhases[i]);
     }
 
     // debug

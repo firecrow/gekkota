@@ -294,3 +294,22 @@ __device__ void gka_set_steps_from_block_hipdevice(
     soundId++;
   }
 }
+
+__device__ void gka_set_phases_for_event_hipdevice(
+    double *dest, double *steps, int soundId, int period_size
+) {
+  int slot;
+  double phase = 0.0;
+
+  for (int frame = 0; frame < period_size; frame++) {
+    slot = soundId * period_size + frame;
+
+    phase += steps[slot];
+
+    if (phase >= MAX_PHASE) {
+      phase -= MAX_PHASE;
+    }
+
+    dest[slot] = phase;
+  }
+}
