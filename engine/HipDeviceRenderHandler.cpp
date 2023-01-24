@@ -76,10 +76,8 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
     hipMalloc((void **)&phasesBuff, soundCount * count * sizeof(double));
 
-    //    double *debugSteps = (double *)malloc(soundCount * count *
-    //    sizeof(double));
-    //   double *debugPhases = (double *)malloc(soundCount * count *
-    //   sizeof(double));
+    double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
+    double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
 
     hipMalloc((void **)&srcBuff, src->values.head.allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
@@ -103,7 +101,6 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
         0, destBuff, srcBuff, phasesBuff, elapsed, rate, count
     );
 
-    /*
     hipMemcpy(
         debugSteps, stepsBuff, sizeof(double) * count * soundCount,
         hipMemcpyDeviceToHost
@@ -113,7 +110,6 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
         debugPhases, phasesBuff, sizeof(double) * count * soundCount,
         hipMemcpyDeviceToHost
     );
-    */
 
     hipMemcpy(
         dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
@@ -125,25 +121,24 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     hipFree(destBuff);
 
     // free(debugSteps);
-    // free(debugPhases);
+    free(debugPhases);
 
-    /*
     printf("steps...\n");
-    for (int i = 0; i < 10
-    ; i++) {
+    for (int i = 0; i < count; i++) {
       printf("%lf\n", debugSteps[i]);
     }
+    /*
     printf("phases...\n");
-    for (int i = 0; i < 10 ; i++) {
+    for (int i = 0; i < count; i++) {
       printf("%lf\n", debugPhases[i]);
     }
-    */
-    printf("audio daa...\n");
+    printf("audio data...\n");
     for (int i = 0; i < count; i++) {
       printf("%lf\n", dest[i]);
     }
+    */
 
     // debug
-    // exit(1);
+    exit(1);
   };
 };

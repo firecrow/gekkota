@@ -174,9 +174,6 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
   double position = local - start;
   struct gka_entry *s = gka_pointer_hipdevice(blk, soundlp);
 
-  double freq =
-      value_from_segment_hipdevice(blk, s->values.sound.freq, base, position);
-
   double volume =
       value_from_segment_hipdevice(blk, s->values.sound.volume, base, position);
 
@@ -187,7 +184,7 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
 
   // used to retrieve pre calculated phases
   int slot = soundId * period_size + frame;
-  return (double)sin(phases[slot]) * volume;
+  return (double)sin(phases[slot]) * 0.2; // volume;
 }
 
 __device__ double gka_get_frame_step_from_event_hipdevice(
