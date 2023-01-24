@@ -157,9 +157,10 @@ int write_loop(const struct gka_audio_params &gka_params) {
       cptr -= r;
     }
 
-    // pause for 100 nano seconds TODO: replace with polling
-    // struct timespec remaining, sleep_for = {0, 100};
-    // nanosleep(&sleep_for, &remaining);
+    // pause for 50000 nano seconds, 1/2 period size
+    // TODO: replace with polling
+    struct timespec remaining, sleep_for = {0, 5000};
+    nanosleep(&sleep_for, &remaining);
   }
 
   printf("in bottom of write loop function\n");

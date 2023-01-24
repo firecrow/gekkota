@@ -123,15 +123,17 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     // free(debugSteps);
     free(debugPhases);
 
+    /*
     printf("steps...\n");
     for (int i = 0; i < count; i++) {
       printf("%lf\n", debugSteps[i]);
     }
-    /*
+    */
     printf("phases...\n");
     for (int i = 0; i < count; i++) {
       printf("%lf\n", debugPhases[i]);
     }
+    /*
     printf("audio data...\n");
     for (int i = 0; i < count; i++) {
       printf("%lf\n", dest[i]);
@@ -139,6 +141,6 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     */
 
     // debug
-    exit(1);
+    // exit(1);
   };
 };
