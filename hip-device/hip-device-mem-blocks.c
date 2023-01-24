@@ -162,8 +162,9 @@ __device__ double value_from_segment_hipdevice(
 }
 
 __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
-    struct gka_entry *blk, struct gka_entry *event, gka_time_t start, int frame,
-    gka_time_t local, const uint32_t rate
+    struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,
+    gka_time_t start, int frame, gka_time_t local, const uint32_t rate,
+    int period_size
 ) {
 
   gka_local_address_t soundlp = event->values.event.sounds;
@@ -184,15 +185,9 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     volume = 1.0;
   }
 
-  double step = MAX_PHASE * freq / (double)rate;
-
-  s->values.sound.phase = step * 100000.0 * frame / 100000.0;
-
-  while (s->values.sound.phase > MAX_PHASE) {
-    s->values.sound.phase -= MAX_PHASE;
-  }
-
-  return (double)sin(s->values.sound.phase) * volume;
+  // used to retrieve pre calculated phases
+  int slot = soundId * period_size + frame;
+  return (double)sin(phases[slot]) * volume;
 }
 
 __device__ double gka_get_frame_step_from_event_hipdevice(
@@ -224,12 +219,15 @@ gka_time_modulus_hipdevice(gka_time_t src, gka_time_t mod) {
 }
 
 __device__ gka_decimal_t gka_frame_from_block_hipdevice(
-    struct gka_entry *blk, int frame, gka_time_t local, int rate
+    struct gka_entry *blk, double *phases, int frame, gka_time_t local,
+    int rate, int period_size
 ) {
 
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer_hipdevice(blk, 0);
   gka_local_address_t soundlp = head->values.head.addr;
+
+  int soundId = 0;
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer_hipdevice(blk, soundlp);
@@ -243,15 +241,17 @@ __device__ gka_decimal_t gka_frame_from_block_hipdevice(
       );
 
       frame_value += gka_get_frame_value_from_event_hipdevice(
-          blk, e, 0, frame, local_repeat, rate
+          blk, phases, e, soundId, 0, frame, local_repeat, rate, period_size
       );
     } else {
       frame_value += gka_get_frame_value_from_event_hipdevice(
-          blk, e, e->values.event.start, frame, local, rate
+          blk, phases, e, soundId, e->values.event.start, frame, local, rate,
+          period_size
       );
     }
 
     soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND_EVENT);
+    soundId++;
   }
   return frame_value;
 }

@@ -7,8 +7,10 @@ using namespace std;
 
 Engine::Engine() {}
 
-double *
-Engine::render(vector<struct gka_entry *> blocks, int count, uint32_t rate) {
+void Engine::render(
+    RenderFinalizer *finalizer, vector<struct gka_entry *> blocks, int count,
+    uint32_t rate
+) {
   // TODO: make this a round robin lottery to balance handlers
   RenderHandler *handler = this->handlers.front();
 
@@ -18,7 +20,6 @@ Engine::render(vector<struct gka_entry *> blocks, int count, uint32_t rate) {
   vector<thread *> thd;
   vector<RenderHandler *> hinst;
 
-  // crunch all the numbers:
   for (struct gka_entry *m : blocks) {
     RenderHandler *h = handler->makeInstance(m, count, rate);
 
@@ -31,10 +32,8 @@ Engine::render(vector<struct gka_entry *> blocks, int count, uint32_t rate) {
   }
 
   // gather all the framesets:
-  RenderFinalizer finalizer = RenderFinalizer(count);
   for (RenderHandler *h : hinst) {
-    finalizer.marryToDest(h->dest);
+    finalizer->marryToDest(h->dest);
     delete h;
   }
-  return finalizer.dest;
 }

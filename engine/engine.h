@@ -68,53 +68,6 @@ int write_loop(
     const struct gka_audio_params &gka_params
 );
 
-class RenderHandler {
-public:
-  virtual function<void(void)> getAction(gka_time_t elapsed){};
-  virtual RenderHandler *makeInstance(
-    struct gka_entry *src, int count, int rate
-  ){};
-  struct gka_entry *src;
-  gka_decimal_t *dest;
-  int count;
-  int rate;
-};
-
-class Engine {
-  public:
-  Engine();
-  static Engine &instance;
-  vector <RenderHandler *> handlers;
-  double *render(vector<struct gka_entry *>blocks, int count, uint32_t rate);
-};
-
-
-class HostRenderHandler: public RenderHandler
-{
-public:
-  HostRenderHandler();
-  RenderHandler *makeInstance(
-    struct gka_entry *src, int count, int rate
-  );
-  function<void(void)> getAction(gka_time_t elapsed);
-  ~HostRenderHandler(){
-    delete this->dest;
-  }
-};
-
-class HipDeviceRenderHandler: public RenderHandler
-{
-public:
-  HipDeviceRenderHandler();
-  RenderHandler *makeInstance(
-    struct gka_entry *src, int count, int rate
-  );
-  function<void(void)> getAction(gka_time_t elapsed);
-  ~HipDeviceRenderHandler(){
-    delete this->dest;
-  }
-};
-
 class RenderFinalizer 
 {
 public:
@@ -134,5 +87,52 @@ public:
     for(int i = 0; i < count; i ++){
       dest[i] += src[i];
     }
+  }
+};
+
+class RenderHandler {
+public:
+  virtual function<void(void)> getAction(gka_time_t elapsed){};
+  virtual RenderHandler *makeInstance(
+    struct gka_entry *src, int count, int rate
+  ){};
+  struct gka_entry *src;
+  gka_decimal_t *dest;
+  int count;
+  int rate;
+};
+
+class Engine {
+  public:
+  Engine();
+  static Engine &instance;
+  vector <RenderHandler *> handlers;
+  void render(RenderFinalizer *finalizer, vector<struct gka_entry *>blocks, int count, uint32_t rate);
+};
+
+
+class HostRenderHandler: public RenderHandler
+{
+public:
+  HostRenderHandler();
+  RenderHandler *makeInstance(
+    struct gka_entry *src, int count, int rate
+  );
+  function<void(void)> getAction(gka_time_t elapsed);
+  ~HostRenderHandler(){
+    free(this->dest);
+  }
+};
+
+class HipDeviceRenderHandler: public RenderHandler
+{
+public:
+  HipDeviceRenderHandler();
+  RenderHandler *makeInstance(
+    struct gka_entry *src, int count, int rate
+  );
+  function<void(void)> getAction(gka_time_t elapsed);
+  ~HipDeviceRenderHandler(){
+    free(this->dest);
   }
 };

@@ -129,15 +129,20 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
     Engine *engine = &Engine::instance;
     Title *ctx = &Title::instance;
-    const double *data = engine->render(
-        ctx->sound_blocks, gka_params.period_size, gka_params.rate
+    RenderFinalizer finalizer = RenderFinalizer(gka_params.period_size);
+    engine->render(
+        &finalizer, ctx->sound_blocks, gka_params.period_size, gka_params.rate
     );
+    /*
 
     // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(
-        gka_params, output_objects->areas, 0, gka_params.period_size, data
+        gka_params, output_objects->areas, 0, gka_params.period_size,
+        finalizer.dest
     );
+    */
 
+    /*
     ptr = output_objects->samples;
     cptr = period_size;
     while (cptr > 0) {
@@ -154,6 +159,11 @@ int write_loop(const struct gka_audio_params &gka_params) {
       ptr += r * gka_params.channels;
       cptr -= r;
     }
+    */
+
+    // pause for 100 nano seconds TODO: replace with polling
+    struct timespec remaining, sleep_for = {0, 100};
+    nanosleep(&sleep_for, &remaining);
   }
 
   printf("in bottom of write loop function\n");
