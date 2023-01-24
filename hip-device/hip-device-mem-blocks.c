@@ -211,7 +211,7 @@ __device__ gka_decimal_t gka_frame_from_block_hipdevice(
 
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer_hipdevice(blk, 0);
-  gka_local_address_t soundlp = head->values.link.addr;
+  gka_local_address_t soundlp = head->values.head.addr;
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer_hipdevice(blk, soundlp);

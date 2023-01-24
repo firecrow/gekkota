@@ -56,7 +56,7 @@ void gka_apply_transition(
 }
 
 gka_local_address_t gka_segment_create(
-        struct gka_mem_block *blk, gka_value_t start_time, gka_decimal_t start_value,
+        struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
         gka_operand_t ease
     ) {
   gka_local_address_t localp =
@@ -77,7 +77,7 @@ gka_local_address_t gka_segment_create(
 }
 
 gka_local_address_t gka_segment_new(
-        struct gka_mem_block *blk, gka_value_t start_time, gka_decimal_t start_value,
+        struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
         gka_operand_t ease
     ) {
   gka_local_address_t localp =
@@ -101,7 +101,7 @@ gka_local_address_t gka_segment_new(
 }
 
 gka_local_address_t gka_extend_segment(
-     struct gka_mem_block *blk, gka_local_address_t current, struct gka_entry *seg){
+     struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg){
   gka_local_address_t newlp = gka_extend_entry(blk, current);
   if(newlp == GKA_BOUNDRY_ACTION){
     fprintf(stderr, "Error extending segment %s:%d\n", __FILE__, __LINE__);
@@ -117,7 +117,7 @@ gka_local_address_t gka_extend_segment(
   return newlp;
 }
 
-gka_local_address_t gka_segpattern_add_segment(struct gka_mem_block *blk, gka_local_address_t currentlp, struct gka_entry *seg) {
+gka_local_address_t gka_segpattern_add_segment(struct gka_entry *blk, gka_local_address_t currentlp, struct gka_entry *seg) {
   gka_local_address_t next = currentlp;
   gka_local_address_t current = next;
   while(next){
@@ -128,7 +128,7 @@ gka_local_address_t gka_segpattern_add_segment(struct gka_mem_block *blk, gka_lo
 }
 
 gka_local_address_t gka_segpattern_add_segment_values(
-    struct gka_mem_block *blk, gka_local_address_t currentlp,
+    struct gka_entry *blk, gka_local_address_t currentlp,
     gka_time_t start_time, gka_decimal_t value, gka_operand_t transition
   ) {
 
@@ -141,7 +141,7 @@ gka_local_address_t gka_segpattern_add_segment_values(
 }
 
 struct gka_entry *
-gka_segment_from_pattern(struct gka_mem_block *blk, gka_local_address_t currentlp, gka_time_t offset) {
+gka_segment_from_pattern(struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t offset) {
   struct gka_entry *next = gka_pointer(blk, currentlp);
   struct gka_entry *current = next;
   gka_local_address_t nextlp = 0;
@@ -159,7 +159,7 @@ gka_segment_from_pattern(struct gka_mem_block *blk, gka_local_address_t currentl
 }
 
 double value_from_segment(
-    struct gka_mem_block *blk, gka_local_address_t current, double base_value, gka_time_t offset
+    struct gka_entry *blk, gka_local_address_t current, double base_value, gka_time_t offset
 ) {
 
   struct gka_entry *segment = gka_segment_from_pattern(blk, current, offset);

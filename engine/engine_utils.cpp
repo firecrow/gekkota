@@ -3,12 +3,12 @@
 static const char *device = "hw:4,0"; /* playback device */
 
 static double generate_frame_value(
-    vector<struct gka_mem_block *> blocks, gka_time_t local, const uint32_t rate
+    vector<struct gka_entry *> blocks, gka_time_t local, const uint32_t rate
 ) {
   double frame_value = 0.0;
   int sound_id = 0;
 
-  for (struct gka_mem_block *m : blocks) {
+  for (struct gka_entry *m : blocks) {
     frame_value += gka_frame_from_block(m, local, rate);
   }
 

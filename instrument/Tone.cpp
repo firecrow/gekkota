@@ -1,7 +1,7 @@
 #include "../gekkota.h"
 
 gka_local_address_t Tone::constructSound(
-    struct gka_mem_block *blk, double freq, gka_time_t duration,
+    struct gka_entry *blk, double freq, gka_time_t duration,
     gka_time_t repeat_every
 ) {
 
@@ -30,9 +30,8 @@ gka_local_address_t Tone::constructSound(
   return eventlp;
 }
 
-gka_local_address_t Tone::constructKey(
-    struct gka_mem_block_t *blk, double freq, gka_time_t duration
-) {
+gka_local_address_t
+Tone::constructKey(struct gka_entry *blk, double freq, gka_time_t duration) {
   return 0;
   /*
   double fluctuate_tone = 3.0;

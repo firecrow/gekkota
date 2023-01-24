@@ -2,7 +2,7 @@
 #include "sound.h"
 
 gka_local_address_t gka_sound_create(
-    struct gka_mem_block *blk, gka_local_address_t freq, gka_local_address_t volume
+    struct gka_entry *blk, gka_local_address_t freq, gka_local_address_t volume
 ) {
 
   gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE);
@@ -20,10 +20,10 @@ gka_local_address_t gka_sound_create(
   return localp;
 };
 
-gka_local_address_t gka_sound_event_place(struct gka_mem_block *blk);
+gka_local_address_t gka_sound_event_place(struct gka_entry *blk);
 
 gka_local_address_t gka_sound_event_create(
-    struct gka_mem_block *blk, gka_local_address_t sounds, gka_time_t start,
+    struct gka_entry *blk, gka_local_address_t sounds, gka_time_t start,
     gka_time_t repeat
 ) {
 
@@ -61,7 +61,7 @@ gka_local_address_t gka_sound_event_create(
 }
 
 gka_decimal_t gka_get_frame_value_from_event(
-    struct gka_mem_block *blk, struct gka_entry *event, gka_time_t start,
+    struct gka_entry *blk, struct gka_entry *event, gka_time_t start,
     gka_time_t local, const uint32_t rate
 ) {
 
@@ -99,7 +99,7 @@ gka_decimal_t gka_get_frame_value_from_event(
   return value;
 }
 
-gka_decimal_t gka_frame_from_block(struct gka_mem_block *blk, gka_time_t local, int rate){
+gka_decimal_t gka_frame_from_block(struct gka_entry *blk, gka_time_t local, int rate){
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
   gka_local_address_t soundlp = head->values.link.addr;

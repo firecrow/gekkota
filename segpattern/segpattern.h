@@ -14,27 +14,25 @@ typedef void (*get_ease_func
 
 struct gka_segpattern_pattern {
   struct gka_entry *root;
-  struct gka_mem_block *blk;
+  struct gka_entry *blk;
 };
 
 gka_local_address_t gka_segpattern_add_segment(
-    struct gka_mem_block *blk, gka_local_address_t current,
-    struct gka_entry *seg
+    struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg
 );
 
 gka_local_address_t gka_segpattern_add_segment_values(
-    struct gka_mem_block *blk, gka_local_address_t currentlp,
-    gka_time_t start_time, gka_decimal_t value, gka_operand_t transition
+    struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t start_time,
+    gka_decimal_t value, gka_operand_t transition
 );
 
 gka_local_address_t gka_segment_create(
-    struct gka_mem_block *blk, gka_value_t gotime, gka_decimal_t start_value,
+    struct gka_entry *blk, gka_value_t gotime, gka_decimal_t start_value,
     gka_operand_t ease
 );
 
 gka_local_address_t gka_extend_segment(
-    struct gka_mem_block *blk, gka_local_address_t current,
-    struct gka_entry *seg
+    struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg
 );
 
 void square_ease(
@@ -62,15 +60,15 @@ struct gka_segpattern *
 gka_pattern_alloc(size_t length, struct gka_entry *segments[]);
 
 double value_from_segment(
-    struct gka_mem_block *blk, gka_local_address_t current,
+    struct gka_entry *blk, gka_local_address_t current,
     gka_decimal_t base_value, gka_time_t offset
 );
 
 struct gka_entry *gka_segment_from_pattern(
-    struct gka_mem_block *blk, gka_local_address_t currentlp, gka_time_t offset
+    struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t offset
 );
 
 gka_local_address_t gka_segment_new(
-    struct gka_mem_block *blk, gka_value_t start_time,
-    gka_decimal_t start_value, gka_operand_t ease
+    struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
+    gka_operand_t ease
 );

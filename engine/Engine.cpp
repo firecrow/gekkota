@@ -7,9 +7,8 @@ using namespace std;
 
 Engine::Engine() {}
 
-double *Engine::render(
-    vector<struct gka_mem_block *> blocks, int count, uint32_t rate
-) {
+double *
+Engine::render(vector<struct gka_entry *> blocks, int count, uint32_t rate) {
   // TODO: make this a round robin lottery to balance handlers
   RenderHandler *handler = this->handlers.front();
 
@@ -20,7 +19,7 @@ double *Engine::render(
   vector<RenderHandler *> hinst;
 
   // crunch all the numbers:
-  for (struct gka_mem_block *m : blocks) {
+  for (struct gka_entry *m : blocks) {
     RenderHandler *h = handler->makeInstance(m, count, rate);
 
     thd.push_back(new thread(h->getAction(elapsed)));

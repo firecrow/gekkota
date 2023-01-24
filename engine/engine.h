@@ -72,9 +72,9 @@ class RenderHandler {
 public:
   virtual function<void(void)> getAction(gka_time_t elapsed){};
   virtual RenderHandler *makeInstance(
-    struct gka_mem_block *src, int count, int rate
+    struct gka_entry *src, int count, int rate
   ){};
-  struct gka_mem_block *src;
+  struct gka_entry *src;
   gka_decimal_t *dest;
   int count;
   int rate;
@@ -85,7 +85,7 @@ class Engine {
   Engine();
   static Engine &instance;
   vector <RenderHandler *> handlers;
-  double *render(vector<struct gka_mem_block *>blocks, int count, uint32_t rate);
+  double *render(vector<struct gka_entry *>blocks, int count, uint32_t rate);
 };
 
 
@@ -94,7 +94,7 @@ class HostRenderHandler: public RenderHandler
 public:
   HostRenderHandler();
   RenderHandler *makeInstance(
-    struct gka_mem_block *src, int count, int rate
+    struct gka_entry *src, int count, int rate
   );
   function<void(void)> getAction(gka_time_t elapsed);
   ~HostRenderHandler(){
@@ -107,7 +107,7 @@ class HipDeviceRenderHandler: public RenderHandler
 public:
   HipDeviceRenderHandler();
   RenderHandler *makeInstance(
-    struct gka_mem_block *src, int count, int rate
+    struct gka_entry *src, int count, int rate
   );
   function<void(void)> getAction(gka_time_t elapsed);
   ~HipDeviceRenderHandler(){

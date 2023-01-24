@@ -1,9 +1,8 @@
 #include "gekkota.h"
 
 HostRenderHandler::HostRenderHandler() {}
-RenderHandler *HostRenderHandler::makeInstance(
-    struct gka_mem_block *src, int count, int rate
-) {
+RenderHandler *
+HostRenderHandler::makeInstance(struct gka_entry *src, int count, int rate) {
   HostRenderHandler *inst = new HostRenderHandler();
   inst->dest = (double *)malloc(sizeof(double) * count);
   if (!inst->dest) {

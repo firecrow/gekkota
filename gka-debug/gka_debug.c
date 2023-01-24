@@ -35,15 +35,15 @@ void test_print_entry(struct gka_entry *e) {
   }
 }
 
-void test_print_mem_block(struct gka_mem_block *blk) {
-  printf("m(%ld/%ld) ->\n", blk->next_available, blk->allocated);
+void test_print_mem_block(struct gka_entry *blk) {
+  printf("m(%ld/%ld) ->\n", blk->values.head.next_available, blk->values.head.allocated);
 
   gka_local_address_t i = 0;
-  while (i < blk->allocated) {
+  while (i < blk->values.head.allocated) {
     printf("%02d ", i / sizeof(struct gka_entry));
     test_print_entry(gka_pointer(blk, i));
     printf("\n");
     i += sizeof(struct gka_entry);
   }
-  printf("<-\n", blk->next_available, blk->allocated);
+  printf("<-\n", blk->values.head.next_available, blk->values.head.allocated);
 }

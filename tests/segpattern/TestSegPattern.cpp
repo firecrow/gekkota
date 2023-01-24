@@ -18,10 +18,10 @@ class TwoPatternBlock {
 public:
   gka_local_address_t p1;
   gka_local_address_t p2;
-  struct gka_mem_block *m;
+  struct gka_entry *m;
 
   TwoPatternBlock(
-      struct gka_mem_block *m, gka_local_address_t p1, gka_local_address_t p2
+      struct gka_entry *m, gka_local_address_t p1, gka_local_address_t p2
   ) {
     this->m = m;
     this->p1 = p1;
@@ -77,7 +77,7 @@ public:
     gka_decimal_t P2_VALUE4 = 2.75;
     gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
 
-    struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+    struct gka_entry *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
 
     struct gka_entry _s;
     _s.values.segment.start_time = START2;
@@ -169,11 +169,11 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
   };
   // clang-format on
 
-  struct gka_mem_block _m;
-  _m.data = (struct gka_mem_block *)&threeSegs;
-  _m.allocated = sizeof(struct gka_mem_block) * 3;
+  struct gka_entry _m;
+  _m.data = (struct gka_entry *)&threeSegs;
+  _m.allocated = sizeof(struct gka_entry) * 3;
   _m.next_available = 0;
-  struct gka_mem_block *m = &_m;
+  struct gka_entry *m = &_m;
 
   gka_local_address_t t;
   struct gka_entry *s, *n, *n2;
@@ -197,7 +197,7 @@ TEST_F(GkaSegPatternFixture, MemBlockTests) {
 TEST_F(GkaSegPatternFixture, SegmentCreateTests) {
   cout << "\x1b[33mrunning seg test\x1b[0m" << endl;
 
-  struct gka_mem_block *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
+  struct gka_entry *m = gka_alloc_memblock(6 * sizeof(struct gka_entry));
 
   gka_local_address_t t;
   struct gka_entry *s, *n, *n2;
@@ -224,7 +224,7 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
   gka_decimal_t VALUE3 = 1.5;
   gka_operand_t TRANSITION3 = GKA_LINEAR;
 
-  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+  struct gka_entry *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
 
   gka_local_address_t t = gka_segment_create(m, START, VALUE, TRANSITION);
 
@@ -252,7 +252,7 @@ TEST_F(GkaSegPatternFixture, ExtendSegmentTests) {
 }
 
 TEST_F(GkaSegPatternFixture, PatternCreateTests) {
-  struct gka_mem_block *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
+  struct gka_entry *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
   struct gka_entry _s;
   gka_local_address_t t, r;
 
@@ -349,7 +349,7 @@ TEST_F(GkaSegPatternFixture, CollisionTests) {
   gka_decimal_t P2_VALUE4 = 2.75;
   gka_operand_t P2_TRANSITION4 = GKA_LINEAR;
 
-  struct gka_mem_block *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
+  struct gka_entry *m = gka_alloc_memblock(32 * sizeof(struct gka_entry));
 
   struct gka_entry _s;
   gka_local_address_t r = gka_segment_create(m, START2, VALUE2, TRANSITION2);

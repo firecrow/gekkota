@@ -12,7 +12,7 @@ __global__ void gkaHipProcessBlock(
 
 HipDeviceRenderHandler::HipDeviceRenderHandler() {}
 RenderHandler *HipDeviceRenderHandler::makeInstance(
-    struct gka_mem_block *src, int count, int rate
+    struct gka_entry *src, int count, int rate
 ) {
   HipDeviceRenderHandler *inst = new HipDeviceRenderHandler();
   inst->dest = (double *)malloc(sizeof(double) * count);
@@ -42,13 +42,17 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
 
     struct gka_entry *srcBuff;
     double *destBuff;
+    double *stepBuff;
+    double *phaseBuff;
+
+    int soundCount = gka_count_sounds_in_block(src);
 
     // printf("allocated a src buf of %ld for count %ld\n", src->allocated,
     // count);
 
-    hipMalloc((void **)&srcBuff, src->allocated);
+    hipMalloc((void **)&srcBuff, src->values.head.allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
-    hipMemcpy(srcBuff, src->data, src->allocated, hipMemcpyHostToDevice);
+    hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
 
     hipLaunchKernelGGL(
         gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0,
@@ -63,8 +67,11 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
     hipFree(srcBuff);
     hipFree(destBuff);
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < 10 /*count*/; i++) {
       printf("%lf\n", dest[i]);
     }
+
+    // debug
+    exit(1);
   };
 };
