@@ -195,6 +195,24 @@ __device__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
   return (double)sin(s->values.sound.phase) * volume;
 }
 
+__device__ double gka_get_frame_step_from_event_hipdevice(
+    struct gka_entry *blk, struct gka_entry *event, gka_time_t start, int frame,
+    gka_time_t local, const uint32_t rate
+) {
+
+  gka_local_address_t soundlp = event->values.event.sounds;
+  double base = 1.0;
+  int idx = 0;
+
+  double position = local - start;
+  struct gka_entry *s = gka_pointer_hipdevice(blk, soundlp);
+
+  double freq =
+      value_from_segment_hipdevice(blk, s->values.sound.freq, base, position);
+
+  return MAX_PHASE * freq / (double)rate;
+}
+
 __device__ gka_time_t
 gka_time_modulus_hipdevice(gka_time_t src, gka_time_t mod) {
   gka_time_t remainder = src;
@@ -227,7 +245,6 @@ __device__ gka_decimal_t gka_frame_from_block_hipdevice(
       frame_value += gka_get_frame_value_from_event_hipdevice(
           blk, e, 0, frame, local_repeat, rate
       );
-      return (double)frame_value;
     } else {
       frame_value += gka_get_frame_value_from_event_hipdevice(
           blk, e, e->values.event.start, frame, local, rate
@@ -237,4 +254,43 @@ __device__ gka_decimal_t gka_frame_from_block_hipdevice(
     soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND_EVENT);
   }
   return frame_value;
+}
+
+__device__ void gka_set_steps_from_block_hipdevice(
+    struct gka_entry *blk, double *out, int frame, gka_time_t local, int rate,
+    int period_size
+) {
+
+  gka_decimal_t frame_value = 0;
+  struct gka_entry *head = gka_pointer_hipdevice(blk, 0);
+  gka_local_address_t soundlp = head->values.head.addr;
+  int soundId = 0;
+  int slot = 0;
+
+  while (soundlp) {
+    slot = soundId * period_size + frame;
+
+    struct gka_entry *e = gka_pointer_hipdevice(blk, soundlp);
+    if (e->values.event.start > local) {
+      continue;
+    }
+    if (e->values.event.repeat) {
+      gka_time_t local_repeat;
+      local_repeat = gka_time_modulus_hipdevice(
+          local - e->values.event.start, e->values.event.repeat
+      );
+
+      out[slot] = gka_get_frame_step_from_event_hipdevice(
+          blk, e, 0, frame, local_repeat, rate
+      );
+
+    } else {
+      out[slot] = gka_get_frame_step_from_event_hipdevice(
+          blk, e, e->values.event.start, frame, local, rate
+      );
+    }
+
+    soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND_EVENT);
+    soundId++;
+  }
 }

@@ -2,6 +2,17 @@
 #include <hip/hip_runtime.h>
 #include "hip-device/hip-device-mem-blocks.c"
 
+__global__ void gkaHipSetSteps(
+    gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate,
+    int N
+) {
+  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
+  if (frameId > N)
+    return;
+  gka_time_t local = elapsed + frameId;
+  gka_set_steps_from_block_hipdevice(src, dest, frameId, local, rate, N);
+}
+
 __global__ void gkaHipProcessBlock(
     gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate
 ) {
@@ -22,7 +33,6 @@ RenderHandler *HipDeviceRenderHandler::makeInstance(
         "Error allocating destination array of doubles for hip device\n"
     );
   }
-  printf("initializeing...%ld\n", count);
   inst->src = src;
   inst->count = count;
   inst->rate = rate;
@@ -43,33 +53,50 @@ function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
 
     struct gka_entry *srcBuff;
     double *destBuff;
-    double *stepBuff;
+    double *stepsBuff;
     double *phaseBuff;
 
     test_print_mem_block(src);
 
     int soundCount = gka_count_sounds_in_block(src);
-    printf("sounds found %d\n", soundCount);
+
+    hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
+    hipMalloc((void **)&phaseBuff, soundCount * count * sizeof(double));
+
+    double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
 
     hipMalloc((void **)&srcBuff, src->values.head.allocated);
     hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
     hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
 
     hipLaunchKernelGGL(
+        gkaHipSetSteps, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
+        stepsBuff, srcBuff, elapsed, rate, count
+    );
+    /*
+    hipLaunchKernelGGL(
         gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0,
         0, destBuff, srcBuff, elapsed, rate
     );
+    */
 
-    // printf("about to call the device\n");
+    // debug
     hipMemcpy(
-        dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
+        debugSteps, stepsBuff, sizeof(double) * count * soundCount,
+        hipMemcpyDeviceToHost
     );
+    /*
+     hipMemcpy(
+         dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
+     );
+     */
 
+    hipFree(stepsBuff);
     hipFree(srcBuff);
     hipFree(destBuff);
 
     for (int i = 0; i < 10 /*count*/; i++) {
-      printf("%lf\n", dest[i]);
+      printf("%lf\n", debugSteps[i]);
     }
 
     // debug

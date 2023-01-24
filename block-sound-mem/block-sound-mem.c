@@ -159,7 +159,6 @@ int gka_count_sounds_in_block(struct gka_entry *blk) {
   int count = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
   gka_local_address_t soundlp = head->values.head.addr;
-  printf("\x1b[33mpoo %ld\x1b[0m\n", soundlp);
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
