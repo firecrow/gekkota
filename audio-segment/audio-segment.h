@@ -12,6 +12,18 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#if GPU_ARCH==hip
+    #define __PROCESS_GPU__ __device__
+    #define __PROCESS_HOST__ 
+    #define __PROCESS_BRIDGE__ __global__
+    #define __PROCESS_BOTH__ __host__ __device__
+#else
+    #define __PROCESS_GPU__ 
+    #define __PROCESS_HOST__ 
+    #define __PROCESS_BRIDGE__ 
+    #define __PROCESS_BOTH__ 
+#endif
+
 #define MAX_PHASE 2. * M_PI
 
 #include "time/gka_time.h"
@@ -103,111 +115,101 @@ struct gka_entry {
 };
 
 /* ------ segment and memory management ------ */
-struct gka_entry *gka_alloc_memblock(gka_local_address_t size);
+__PROCESS_BOTH__ struct gka_entry *gka_alloc_memblock(gka_local_address_t size);
 
 gka_local_address_t
-gka_allocate_space(struct gka_entry *blk, gka_local_address_t size);
+__PROCESS_BOTH__ gka_allocate_space(struct gka_entry *blk, gka_local_address_t size);
 
-gka_local_address_t
+__PROCESS_BOTH__ gka_local_address_t
 gka_to_local(struct gka_entry *blk, struct gka_entry *entry);
 
-struct gka_entry *
+__PROCESS_BOTH__ struct gka_entry *
 gka_pointer(struct gka_entry *blk, gka_local_address_t localp);
 
-struct gka_entry *gka_nth(struct gka_entry *blk, int offset);
+__PROCESS_BOTH__ struct gka_entry *gka_nth(struct gka_entry *blk, int offset);
 int gka_claim_entry(struct gka_entry *blk, gka_local_address_t localp);
 
-struct gka_entry *gka_next(struct gka_entry *blk, gka_local_address_t localp);
+__PROCESS_BOTH__ struct gka_entry *gka_next(struct gka_entry *blk, gka_local_address_t localp);
 
-gka_local_address_t
+__PROCESS_BOTH__ gka_local_address_t
 gka_next_local(struct gka_entry *blk, gka_local_address_t localp);
 
-gka_local_address_t
+__PROCESS_BOTH__ gka_local_address_t
 gka_extend_entry(struct gka_entry *blk, gka_local_address_t localp);
 
-gka_local_address_t gka_add_entry_to_set(
+__PROCESS_BOTH__ gka_local_address_t gka_add_entry_to_set(
     struct gka_entry *blk, gka_local_address_t localp, gka_operand_t type
 );
 
-void gka_set_entry_status(
+__PROCESS_BOTH__ void gka_set_entry_status(
     struct gka_entry *blk, gka_local_address_t localp, gka_operand_t type
 );
 
-gka_local_address_t gka_entry_next(
+__PROCESS_BOTH__ gka_local_address_t gka_entry_next(
     struct gka_entry *blk, gka_local_address_t localp, gka_operand_t type
 );
 
-gka_local_address_t gka_segment_create(
+__PROCESS_BOTH__ gka_local_address_t gka_segment_create(
     struct gka_entry *blk, gka_value_t gotime, gka_decimal_t start_value,
     gka_operand_t ease
 );
 
-
-gka_local_address_t gka_segpattern_add_segment(
+__PROCESS_BOTH__ gka_local_address_t gka_segpattern_add_segment(
     struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg
 );
 
-gka_local_address_t gka_segpattern_add_segment_values(
+__PROCESS_BOTH__ gka_local_address_t gka_segpattern_add_segment_values(
     struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t start_time,
     gka_decimal_t value, gka_operand_t transition
 );
 
-gka_local_address_t gka_extend_segment(
+__PROCESS_BOTH__ gka_local_address_t gka_extend_segment(
     struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg
 );
 
-gka_local_address_t gka_sound_create(
+__PROCESS_BOTH__ gka_local_address_t gka_sound_create(
     struct gka_entry *blk, gka_local_address_t freq, gka_local_address_t volume
 );
 
-gka_local_address_t gka_sound_event_create(
+__PROCESS_BOTH__ gka_local_address_t gka_sound_event_create(
     struct gka_entry *blk, gka_local_address_t sounds, gka_time_t start,
     gka_time_t repeat
 );
-
 
 /* ------ retrieve and process segment values ------ */
 
 int gka_count_sounds_in_block(struct gka_entry *blk);
 
-struct gka_entry *gka_segment_from_pattern(
+__PROCESS_BOTH__ struct gka_entry *gka_segment_from_pattern(
     struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t offset
 );
 
-double value_from_segment(
+__PROCESS_BOTH__ double value_from_segment(
     struct gka_entry *blk, gka_local_address_t current,
     gka_decimal_t base_value, gka_time_t offset
 );
 
-gka_decimal_t gka_get_frame_value_from_event(
-    struct gka_entry *blk, struct gka_entry *event, gka_time_t start,
-    gka_time_t local, const uint32_t rate
-);
-
-gka_decimal_t
-gka_frame_from_block(struct gka_entry *blk, gka_time_t local, int rate);
-
 /* ------ math and transition functions ------ */
-void square_ease(
+__PROCESS_BOTH__ void square_ease(
     double *progress, struct gka_entry *segment, double start, double end
 );
-void linear_ease(
+__PROCESS_BOTH__ void linear_ease(
     double *progress, struct gka_entry *segment, double start, double end
 );
-void ease_flip(
+__PROCESS_BOTH__ void ease_flip(
     double *progress, struct gka_entry *segment, double start, double end
 );
-void ease_in(
+__PROCESS_BOTH__ void ease_in(
     double *progress, struct gka_entry *segment, double start, double end
 );
-void ease_out(
+__PROCESS_BOTH__ void ease_out(
     double *progress, struct gka_entry *segment, double start, double end
 );
-void ease_inout(
+__PROCESS_BOTH__ void ease_inout(
     double *progress, struct gka_entry *segment, double start, double end
 );
 
-void gka_apply_transition(
+__PROCESS_BOTH__ void gka_apply_transition(
     double *progress, gka_operand_t transition, struct gka_entry *segment, double start, double end
 );
 
