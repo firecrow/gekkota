@@ -1,5 +1,4 @@
 #include "audio-segment.h"
-#include <hip/hip_runtime.h>
 
 __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,
@@ -37,4 +36,8 @@ gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N);
 __PROCESS_BRIDGE__ void gkaHipProcessBlock(
     gka_decimal_t *dest, struct gka_entry *src, double *phases,
     gka_time_t elapsed, int rate, int period_size
+);
+
+__PROCESS_HOST__ void gka_process_audio_hip(
+    double *dest, struct gka_entry *src, int count, int rate, gka_time_t elapsed
 );

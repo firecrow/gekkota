@@ -50,19 +50,19 @@ __PROCESS_GPU__ gka_decimal_t gka_frame_from_block_hipdevice(
 ) {
 
   gka_decimal_t frame_value = 0;
-  struct gka_entry *head = gka_pointer_hipdevice(blk, 0);
+  struct gka_entry *head = gka_pointer(blk, 0);
   gka_local_address_t soundlp = head->values.head.addr;
 
   int soundId = 0;
 
   while (soundlp) {
-    struct gka_entry *e = gka_pointer_hipdevice(blk, soundlp);
+    struct gka_entry *e = gka_pointer(blk, soundlp);
     if (e->values.event.start > local) {
       continue;
     }
     if (e->values.event.repeat) {
       gka_time_t local_repeat;
-      local_repeat = gka_time_modulus_hipdevice(
+      local_repeat = gka_time_modulus(
           local - e->values.event.start, e->values.event.repeat
       );
 
@@ -140,9 +140,10 @@ __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
   }
 }
 
+
 /* ------ kernels ------ */
 
-__PROCESS_BRIDGE__ void gkaHipSetSteps(
+__global__ void gkaHipSetSteps(
     gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate,
     int N
 ) {
@@ -151,10 +152,10 @@ __PROCESS_BRIDGE__ void gkaHipSetSteps(
     return;
 
   gka_time_t local = elapsed + frameId;
-  gka_set_steps_from_block_hipdevice(src, dest, frameId, local, rate, N);
+  gka_set_steps_from_hipdevice(src, dest, frameId, local, rate, N);
 }
 
-__PROCESS_BRIDGE__ void
+__global__ void
 gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N) {
   int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
   if (frameId >= N)
@@ -172,4 +173,90 @@ __PROCESS_BRIDGE__ void gkaHipProcessBlock(
   dest[frameId] = gka_frame_from_block_hipdevice(
       src, phases, frameId, local, rate, period_size
   );
+}
+
+/* ------ render call ------ */
+
+__PROCESS_HOST__ void gka_process_audio_hip(double *dest, struct gka_entry *src, int count, int rate, gka_time_t elapsed){
+    unsigned blockSize = 256;
+
+    struct gka_entry *srcBuff;
+    double *destBuff;
+    double *stepsBuff;
+    double *phasesBuff;
+
+    // test_print_mem_block(src);
+
+    int soundCount = gka_count_sounds_in_block(src);
+
+    hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
+    hipMalloc((void **)&phasesBuff, soundCount * count * sizeof(double));
+
+    double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
+    double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
+
+    hipMalloc((void **)&srcBuff, src->values.head.allocated);
+    hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
+    hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
+
+    // calculate steps in parallel
+    hipLaunchKernelGGL(
+        gkaHipSetSteps, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
+        stepsBuff, srcBuff, elapsed, rate, count
+    );
+
+    // calculate phase in series
+    hipLaunchKernelGGL(
+        gkaHipSetPhases, dim3((soundCount / blockSize) + 1), dim3(blockSize), 0,
+        0, phasesBuff, stepsBuff, count, soundCount
+    );
+
+    // process sound
+    hipLaunchKernelGGL(
+        gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0,
+        0, destBuff, srcBuff, phasesBuff, elapsed, rate, count
+    );
+
+    hipMemcpy(
+        debugSteps, stepsBuff, sizeof(double) * count * soundCount,
+        hipMemcpyDeviceToHost
+    );
+
+    hipMemcpy(
+        debugPhases, phasesBuff, sizeof(double) * count * soundCount,
+        hipMemcpyDeviceToHost
+    );
+
+    hipMemcpy(
+        dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
+    );
+
+    hipFree(stepsBuff);
+    hipFree(phasesBuff);
+    hipFree(srcBuff);
+    hipFree(destBuff);
+
+    // free(debugSteps);
+    free(debugPhases);
+
+    /*
+    printf("steps...\n");
+    for (int i = 0; i < count; i++) {
+      printf("%lf\n", debugSteps[i]);
+    }
+    */
+    printf("phases...\n");
+    for (int i = 0; i < count; i++) {
+      printf("%lf\n", debugPhases[i]);
+    }
+    /*
+    printf("audio data...\n");
+    for (int i = 0; i < count; i++) {
+      printf("%lf\n", dest[i]);
+    }
+    */
+
+    // debug
+    // exit(1);
+  };
 }

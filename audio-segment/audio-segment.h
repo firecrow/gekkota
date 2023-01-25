@@ -8,20 +8,24 @@
 #include <stdio.h>
 #include <string.h>
 
+#if GKA_GPU_ARCH == hip
+#include <hip/hip_runtime.h>
+#endif
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-#if GPU_ARCH==hip
-    #define __PROCESS_GPU__ __device__
-    #define __PROCESS_HOST__ 
-    #define __PROCESS_BRIDGE__ __global__
-    #define __PROCESS_BOTH__ __host__ __device__
+#if GKA_GPU_ARCH == hip
+#define __PROCESS_GPU__ __device__
+#define __PROCESS_HOST__
+#define __PROCESS_BRIDGE__ __global__
+#define __PROCESS_BOTH__ __host__ __device__
 #else
-    #define __PROCESS_GPU__ 
-    #define __PROCESS_HOST__ 
-    #define __PROCESS_BRIDGE__ 
-    #define __PROCESS_BOTH__ 
+#define __PROCESS_GPU__
+#define __PROCESS_HOST__
+#define __PROCESS_BRIDGE__
+#define __PROCESS_BOTH__
 #endif
 
 #define MAX_PHASE 2. * M_PI
@@ -117,8 +121,8 @@ struct gka_entry {
 /* ------ segment and memory management ------ */
 __PROCESS_BOTH__ struct gka_entry *gka_alloc_memblock(gka_local_address_t size);
 
-gka_local_address_t
-__PROCESS_BOTH__ gka_allocate_space(struct gka_entry *blk, gka_local_address_t size);
+gka_local_address_t __PROCESS_BOTH__
+gka_allocate_space(struct gka_entry *blk, gka_local_address_t size);
 
 __PROCESS_BOTH__ gka_local_address_t
 gka_to_local(struct gka_entry *blk, struct gka_entry *entry);
@@ -129,7 +133,8 @@ gka_pointer(struct gka_entry *blk, gka_local_address_t localp);
 __PROCESS_BOTH__ struct gka_entry *gka_nth(struct gka_entry *blk, int offset);
 int gka_claim_entry(struct gka_entry *blk, gka_local_address_t localp);
 
-__PROCESS_BOTH__ struct gka_entry *gka_next(struct gka_entry *blk, gka_local_address_t localp);
+__PROCESS_BOTH__ struct gka_entry *
+gka_next(struct gka_entry *blk, gka_local_address_t localp);
 
 __PROCESS_BOTH__ gka_local_address_t
 gka_next_local(struct gka_entry *blk, gka_local_address_t localp);
@@ -199,18 +204,17 @@ __PROCESS_BOTH__ void linear_ease(
 __PROCESS_BOTH__ void ease_flip(
     double *progress, struct gka_entry *segment, double start, double end
 );
-__PROCESS_BOTH__ void ease_in(
-    double *progress, struct gka_entry *segment, double start, double end
-);
-__PROCESS_BOTH__ void ease_out(
-    double *progress, struct gka_entry *segment, double start, double end
-);
+__PROCESS_BOTH__ void
+ease_in(double *progress, struct gka_entry *segment, double start, double end);
+__PROCESS_BOTH__ void
+ease_out(double *progress, struct gka_entry *segment, double start, double end);
 __PROCESS_BOTH__ void ease_inout(
     double *progress, struct gka_entry *segment, double start, double end
 );
 
 __PROCESS_BOTH__ void gka_apply_transition(
-    double *progress, gka_operand_t transition, struct gka_entry *segment, double start, double end
+    double *progress, gka_operand_t transition, struct gka_entry *segment,
+    double start, double end
 );
 
 #endif
