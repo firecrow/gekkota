@@ -131,7 +131,9 @@ __PROCESS_BOTH__ struct gka_entry *
 gka_pointer(struct gka_entry *blk, gka_local_address_t localp);
 
 __PROCESS_BOTH__ struct gka_entry *gka_nth(struct gka_entry *blk, int offset);
-int gka_claim_entry(struct gka_entry *blk, gka_local_address_t localp);
+
+__PROCESS_BOTH__ int
+gka_claim_entry(struct gka_entry *blk, gka_local_address_t localp);
 
 __PROCESS_BOTH__ struct gka_entry *
 gka_next(struct gka_entry *blk, gka_local_address_t localp);
