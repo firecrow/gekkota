@@ -25,3 +25,16 @@ __PROCESS_GPU__ void gka_set_steps_from_hipdevice(
 __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
     double *dest, double *steps, int soundId, int period_size
 );
+
+__PROCESS_BRIDGE__ void gkaHipSetSteps(
+    gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate,
+    int N
+);
+
+__PROCESS_BRIDGE__ void
+gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N);
+
+__PROCESS_BRIDGE__ void gkaHipProcessBlock(
+    gka_decimal_t *dest, struct gka_entry *src, double *phases,
+    gka_time_t elapsed, int rate, int period_size
+);

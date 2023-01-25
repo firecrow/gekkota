@@ -1,38 +1,5 @@
 #include "gekkota.h"
-#include <hip/hip_runtime.h>
-#include "hip-device/hip-device-mem-blocks.c"
-
-__global__ void gkaHipSetSteps(
-    gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate,
-    int N
-) {
-  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
-  if (frameId >= N)
-    return;
-
-  gka_time_t local = elapsed + frameId;
-  gka_set_steps_from_block_hipdevice(src, dest, frameId, local, rate, N);
-}
-
-__global__ void
-gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N) {
-  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
-  if (frameId >= N)
-    return;
-
-  gka_set_phases_for_event_hipdevice(dest, steps, frameId, period_size);
-}
-
-__global__ void gkaHipProcessBlock(
-    gka_decimal_t *dest, struct gka_entry *src, double *phases,
-    gka_time_t elapsed, int rate, int period_size
-) {
-  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
-  gka_time_t local = elapsed + frameId;
-  dest[frameId] = gka_frame_from_block_hipdevice(
-      src, phases, frameId, local, rate, period_size
-  );
-}
+#include "audio-segment/hip-calculations.h"
 
 HipDeviceRenderHandler::HipDeviceRenderHandler() {}
 RenderHandler *HipDeviceRenderHandler::makeInstance(

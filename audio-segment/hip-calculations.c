@@ -1,4 +1,4 @@
-#include "audio-segment.h"
+#include "hip-calculations.h"
 
 __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,
@@ -11,10 +11,10 @@ __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
   int idx = 0;
 
   double position = local - start;
-  struct gka_entry *s = gka_pointer_hipdevice(blk, soundlp);
+  struct gka_entry *s = gka_pointer(blk, soundlp);
 
   double volume =
-      value_from_segment_hipdevice(blk, s->values.sound.volume, base, position);
+      value_from_segment(blk, s->values.sound.volume, base, position);
 
   if (volume > 1.0 || volume < 0.0) {
     printf("ERROR WITH VOLUME:%lf\n", volume);
@@ -36,10 +36,10 @@ __PROCESS_GPU__ double gka_get_frame_step_from_event_hipdevice(
   int idx = 0;
 
   double position = local - start;
-  struct gka_entry *s = gka_pointer_hipdevice(blk, soundlp);
+  struct gka_entry *s = gka_pointer(blk, soundlp);
 
   double freq =
-      value_from_segment_hipdevice(blk, s->values.sound.freq, base, position);
+      value_from_segment(blk, s->values.sound.freq, base, position);
 
   return MAX_PHASE * freq / (double)rate;
 }
@@ -76,7 +76,7 @@ __PROCESS_GPU__ gka_decimal_t gka_frame_from_block_hipdevice(
       );
     }
 
-    soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND_EVENT);
+    soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
     soundId++;
   }
   return frame_value;
@@ -88,7 +88,7 @@ __PROCESS_GPU__ void gka_set_steps_from_hipdevice(
 ) {
 
   gka_decimal_t frame_value = 0;
-  struct gka_entry *head = gka_pointer_hipdevice(blk, 0);
+  struct gka_entry *head = gka_pointer(blk, 0);
   gka_local_address_t soundlp = head->values.head.addr;
   int soundId = 0;
   int slot = 0;
@@ -96,13 +96,13 @@ __PROCESS_GPU__ void gka_set_steps_from_hipdevice(
   while (soundlp) {
     slot = soundId * period_size + frame;
 
-    struct gka_entry *e = gka_pointer_hipdevice(blk, soundlp);
+    struct gka_entry *e = gka_pointer(blk, soundlp);
     if (e->values.event.start > local) {
       continue;
     }
     if (e->values.event.repeat) {
       gka_time_t local_repeat;
-      local_repeat = gka_time_modulus_hipdevice(
+      local_repeat = gka_time_modulus(
           local - e->values.event.start, e->values.event.repeat
       );
 
@@ -116,7 +116,7 @@ __PROCESS_GPU__ void gka_set_steps_from_hipdevice(
       );
     }
 
-    soundlp = gka_entry_next_hipdevice(blk, soundlp, GKA_SOUND_EVENT);
+    soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
     soundId++;
   }
 }
@@ -138,4 +138,38 @@ __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
 
     dest[slot] = phase;
   }
+}
+
+/* ------ kernels ------ */
+
+__PROCESS_BRIDGE__ void gkaHipSetSteps(
+    gka_decimal_t *dest, struct gka_entry *src, gka_time_t elapsed, int rate,
+    int N
+) {
+  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
+  if (frameId >= N)
+    return;
+
+  gka_time_t local = elapsed + frameId;
+  gka_set_steps_from_block_hipdevice(src, dest, frameId, local, rate, N);
+}
+
+__PROCESS_BRIDGE__ void
+gkaHipSetPhases(gka_decimal_t *dest, double *steps, int period_size, int N) {
+  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
+  if (frameId >= N)
+    return;
+
+  gka_set_phases_for_event_hipdevice(dest, steps, frameId, period_size);
+}
+
+__PROCESS_BRIDGE__ void gkaHipProcessBlock(
+    gka_decimal_t *dest, struct gka_entry *src, double *phases,
+    gka_time_t elapsed, int rate, int period_size
+) {
+  int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
+  gka_time_t local = elapsed + frameId;
+  dest[frameId] = gka_frame_from_block_hipdevice(
+      src, phases, frameId, local, rate, period_size
+  );
 }
