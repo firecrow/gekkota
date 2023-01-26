@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
       "pushing back a block of sounds at %ld %ld\n", m,
       title->sound_blocks.size()
   );
-  test_print_mem_block(m);
+  // test_print_mem_block(m);
 
   KeysInstrument *Keys = new KeysInstrument(title->midiRouter);
   title->midiRouter->instruments.push_back(Keys);

@@ -178,6 +178,29 @@ __PROCESS_BOTH__ gka_local_address_t gka_segment_create(
   return localp;
 }
 
+__PROCESS_BOTH__ gka_local_address_t gka_segment_new(
+        struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
+        gka_operand_t ease
+    ) {
+  gka_local_address_t localp =
+      gka_allocate_space(blk, GKA_SEGMENT_SIZE*2);
+
+  if (localp == GKA_BOUNDRY_ACTION) {
+    return GKA_MEMORY_FAILURE;
+  }
+
+  struct gka_entry *s = (struct gka_entry *)gka_pointer(blk, localp);
+  s->values.segment.start_time = start_time;
+  s->values.segment.value = start_value;
+  s->values.segment.transition = ease;
+  s->values.all.type = GKA_SEGMENT_VALUE;
+
+  gka_local_address_t next_address = gka_next_local(blk, localp);
+  gka_set_entry_status(blk, next_address, GKA_RESERVED_BY_NEIGHBOUR);
+
+  return localp;
+}
+
 __PROCESS_BOTH__ gka_local_address_t gka_segpattern_add_segment(
     struct gka_entry *blk, gka_local_address_t currentlp, struct gka_entry *seg
 ) {

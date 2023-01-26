@@ -2,20 +2,6 @@
 
 static const char *device = "hw:4,0"; /* playback device */
 
-static double generate_frame_value(
-    vector<struct gka_entry *> blocks, gka_time_t local, const uint32_t rate
-) {
-  double frame_value = 0.0;
-  int sound_id = 0;
-
-  for (struct gka_entry *m : blocks) {
-    frame_value += gka_frame_from_block(m, local, rate);
-  }
-
-  fprintf(Title::instance.logger.file, "%lf\n", frame_value);
-  return frame_value;
-}
-
 static void generate_sine(
     const struct gka_audio_params &gka_params,
     const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count,

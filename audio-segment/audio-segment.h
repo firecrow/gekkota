@@ -163,6 +163,11 @@ __PROCESS_BOTH__ gka_local_address_t gka_segpattern_add_segment(
     struct gka_entry *blk, gka_local_address_t current, struct gka_entry *seg
 );
 
+__PROCESS_BOTH__ gka_local_address_t gka_segment_new(
+    struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
+    gka_operand_t ease
+);
+
 __PROCESS_BOTH__ gka_local_address_t gka_segpattern_add_segment_values(
     struct gka_entry *blk, gka_local_address_t currentlp, gka_time_t start_time,
     gka_decimal_t value, gka_operand_t transition
