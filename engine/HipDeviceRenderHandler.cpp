@@ -1,5 +1,5 @@
 #include "gekkota.h"
-#include "audio-segment/hip-calculations.h"
+#include "audio-segment/audio-segment-hip.hpp"
 
 HipDeviceRenderHandler::HipDeviceRenderHandler() {}
 RenderHandler *HipDeviceRenderHandler::makeInstance(

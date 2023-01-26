@@ -1,1 +1,0 @@
-add_library(block-sound-mem OBJECT block-sound-mem.c)

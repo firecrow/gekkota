@@ -1,4 +1,5 @@
 #include "gekkota.h"
+#include "audio-segment/host-calculations.hpp"
 
 HostRenderHandler::HostRenderHandler() {}
 RenderHandler *

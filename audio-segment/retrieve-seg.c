@@ -19,6 +19,15 @@ __PROCESS_BOTH__ struct gka_entry *gka_segment_from_pattern(
   return current;
 }
 
+__PROCESS_BOTH__ gka_time_t gka_time_modulus(gka_time_t src, gka_time_t mod) {
+  gka_time_t remainder = src;
+  if (src > mod) {
+    gka_time_t times = src / mod;
+    remainder = src - mod * times;
+  }
+  return remainder;
+}
+
 __PROCESS_BOTH__ double value_from_segment(
     struct gka_entry *blk, gka_local_address_t current, double base_value,
     gka_time_t offset

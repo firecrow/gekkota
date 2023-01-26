@@ -1,4 +1,7 @@
 #include "audio-segment.h"
+#include "seg-management.c"
+#include "retrieve-seg.c"
+#include "math-transitions.c"
 
 __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,

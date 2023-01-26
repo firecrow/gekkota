@@ -1,4 +1,4 @@
-#include "hip-calculations.h"
+#include "hip-calculations.hpp"
 
 __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,
@@ -38,8 +38,7 @@ __PROCESS_GPU__ double gka_get_frame_step_from_event_hipdevice(
   double position = local - start;
   struct gka_entry *s = gka_pointer(blk, soundlp);
 
-  double freq =
-      value_from_segment(blk, s->values.sound.freq, base, position);
+  double freq = value_from_segment(blk, s->values.sound.freq, base, position);
 
   return MAX_PHASE * freq / (double)rate;
 }
@@ -140,7 +139,6 @@ __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
   }
 }
 
-
 /* ------ kernels ------ */
 
 __global__ void gkaHipSetSteps(
@@ -177,86 +175,87 @@ __PROCESS_BRIDGE__ void gkaHipProcessBlock(
 
 /* ------ render call ------ */
 
-__PROCESS_HOST__ void gka_process_audio_hip(double *dest, struct gka_entry *src, int count, int rate, gka_time_t elapsed){
-    unsigned blockSize = 256;
+__PROCESS_HOST__ void gka_process_audio_hip(
+    double *dest, struct gka_entry *src, int count, int rate, gka_time_t elapsed
+) {
+  unsigned blockSize = 256;
 
-    struct gka_entry *srcBuff;
-    double *destBuff;
-    double *stepsBuff;
-    double *phasesBuff;
+  struct gka_entry *srcBuff;
+  double *destBuff;
+  double *stepsBuff;
+  double *phasesBuff;
 
-    // test_print_mem_block(src);
+  // test_print_mem_block(src);
 
-    int soundCount = gka_count_sounds_in_block(src);
+  int soundCount = gka_count_sounds_in_block(src);
 
-    hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
-    hipMalloc((void **)&phasesBuff, soundCount * count * sizeof(double));
+  hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
+  hipMalloc((void **)&phasesBuff, soundCount * count * sizeof(double));
 
-    double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
-    double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
+  double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
+  double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
 
-    hipMalloc((void **)&srcBuff, src->values.head.allocated);
-    hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
-    hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
+  hipMalloc((void **)&srcBuff, src->values.head.allocated);
+  hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
+  hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
 
-    // calculate steps in parallel
-    hipLaunchKernelGGL(
-        gkaHipSetSteps, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
-        stepsBuff, srcBuff, elapsed, rate, count
-    );
+  // calculate steps in parallel
+  hipLaunchKernelGGL(
+      gkaHipSetSteps, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
+      stepsBuff, srcBuff, elapsed, rate, count
+  );
 
-    // calculate phase in series
-    hipLaunchKernelGGL(
-        gkaHipSetPhases, dim3((soundCount / blockSize) + 1), dim3(blockSize), 0,
-        0, phasesBuff, stepsBuff, count, soundCount
-    );
+  // calculate phase in series
+  hipLaunchKernelGGL(
+      gkaHipSetPhases, dim3((soundCount / blockSize) + 1), dim3(blockSize), 0,
+      0, phasesBuff, stepsBuff, count, soundCount
+  );
 
-    // process sound
-    hipLaunchKernelGGL(
-        gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0,
-        0, destBuff, srcBuff, phasesBuff, elapsed, rate, count
-    );
+  // process sound
+  hipLaunchKernelGGL(
+      gkaHipProcessBlock, dim3((count / blockSize) + 1), dim3(blockSize), 0, 0,
+      destBuff, srcBuff, phasesBuff, elapsed, rate, count
+  );
 
-    hipMemcpy(
-        debugSteps, stepsBuff, sizeof(double) * count * soundCount,
-        hipMemcpyDeviceToHost
-    );
+  hipMemcpy(
+      debugSteps, stepsBuff, sizeof(double) * count * soundCount,
+      hipMemcpyDeviceToHost
+  );
 
-    hipMemcpy(
-        debugPhases, phasesBuff, sizeof(double) * count * soundCount,
-        hipMemcpyDeviceToHost
-    );
+  hipMemcpy(
+      debugPhases, phasesBuff, sizeof(double) * count * soundCount,
+      hipMemcpyDeviceToHost
+  );
 
-    hipMemcpy(
-        dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
-    );
+  hipMemcpy(
+      dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
+  );
 
-    hipFree(stepsBuff);
-    hipFree(phasesBuff);
-    hipFree(srcBuff);
-    hipFree(destBuff);
+  hipFree(stepsBuff);
+  hipFree(phasesBuff);
+  hipFree(srcBuff);
+  hipFree(destBuff);
 
-    // free(debugSteps);
-    free(debugPhases);
+  // free(debugSteps);
+  free(debugPhases);
 
-    /*
-    printf("steps...\n");
-    for (int i = 0; i < count; i++) {
-      printf("%lf\n", debugSteps[i]);
-    }
-    */
-    printf("phases...\n");
-    for (int i = 0; i < count; i++) {
-      printf("%lf\n", debugPhases[i]);
-    }
-    /*
-    printf("audio data...\n");
-    for (int i = 0; i < count; i++) {
-      printf("%lf\n", dest[i]);
-    }
-    */
+  /*
+  printf("steps...\n");
+  for (int i = 0; i < count; i++) {
+    printf("%lf\n", debugSteps[i]);
+  }
+  */
+  printf("phases...\n");
+  for (int i = 0; i < count; i++) {
+    printf("%lf\n", debugPhases[i]);
+  }
+  /*
+  printf("audio data...\n");
+  for (int i = 0; i < count; i++) {
+    printf("%lf\n", dest[i]);
+  }
+  */
 
-    // debug
-    // exit(1);
-  };
-}
+  // debug
+  // exit(1);
+};

@@ -4,10 +4,8 @@ using namespace std;
 
 typedef void (*void_fptr)();
 
-extern "C" {
-#include "./sound/sound.h"
+#include "./audio-segment/audio-segment.h"
 #include "./gka-debug/gka_debug.h"
-}
 
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"

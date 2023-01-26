@@ -13,9 +13,10 @@
 #include <iostream>
 
 extern "C" {
-#include "sound/sound.h"
 #include "error/error.h"
 }
+
+#include "audio-segment/audio-segment.h"
 
 using namespace std;
 

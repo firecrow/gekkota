@@ -30,8 +30,6 @@
 
 #define MAX_PHASE 2. * M_PI
 
-#include "time/gka_time.h"
-
 /* boundry action is not necessarliy bad it happens at the end of a block and at
  * the end of a segment, both of which can happen naturally */
 #define GKA_BOUNDRY_ACTION 0
@@ -195,6 +193,8 @@ __PROCESS_BOTH__ double value_from_segment(
     struct gka_entry *blk, gka_local_address_t current,
     gka_decimal_t base_value, gka_time_t offset
 );
+
+__PROCESS_BOTH__ gka_time_t gka_time_modulus(gka_time_t src, gka_time_t mod);
 
 /* ------ math and transition functions ------ */
 __PROCESS_BOTH__ void square_ease(
