@@ -9,5 +9,6 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+#include <cstring>
 #include <inttypes.h>
 #include <blend2d.h>

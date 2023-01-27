@@ -122,7 +122,6 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
     // debug
     // break;
-    printf("rendered!\n");
 
     // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(
@@ -131,7 +130,7 @@ int write_loop(const struct gka_audio_params &gka_params) {
     );
 
     ptr = output_objects->samples;
-    cptr = period_size;
+    cptr = gka_params.period_size;
     while (cptr > 0) {
       r = snd_pcm_writei(gka_params.output_handle, ptr, cptr);
       if (r == -EAGAIN)
@@ -153,7 +152,6 @@ int write_loop(const struct gka_audio_params &gka_params) {
     nanosleep(&sleep_for, &remaining);
   }
 
-  printf("in bottom of write loop function\n");
   free(output_objects->areas);
   free(output_objects->samples);
   free(output_objects);

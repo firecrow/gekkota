@@ -122,8 +122,8 @@ __PROCESS_GPU__ void gka_set_steps_from_hipdevice(
 }
 
 __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
-    double *dest, double *initial_phases, double *steps, int soundId,
-    int period_size
+    double *dest, double *initial_phases, double *final_phases, double *steps,
+    int soundId, int period_size
 ) {
   int slot;
   double phase = initial_phases[soundId];
@@ -139,13 +139,12 @@ __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
 
     dest[slot] = phase;
   }
-  initial_phases[soundId] = phase;
+  final_phases[soundId] = phase;
 }
 /* ------ persist phases on host ------ */
 
-__PROCESS_HOST__ void gka_persist_phases(
-    struct gka_entry *blk, double *initialPhases, int period_size
-) {
+__PROCESS_HOST__ void
+gka_persist_phases(struct gka_entry *blk, double *initialPhases) {
 
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
@@ -157,7 +156,12 @@ __PROCESS_HOST__ void gka_persist_phases(
     struct gka_entry *e = gka_pointer(blk, soundlp);
     // last frame of this sound
     printf("persisting phases %lf\n", initialPhases[soundId]);
-    e->values.sound.phase = initialPhases[soundId];
+    printf(
+        "sound(%ld), @%ld\n", e->values.event.sounds,
+        e->values.event.sounds / GKA_SEGMENT_SIZE
+    );
+    struct gka_entry *s = gka_pointer(blk, e->values.event.sounds);
+    s->values.sound.phase = initialPhases[soundId];
 
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
     soundId++;
@@ -175,7 +179,9 @@ gka_gather_sounds_phases(struct gka_entry *blk, double *initialPhases) {
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
-    initialPhases[soundId] = e->values.sound.phase;
+    struct gka_entry *s = gka_pointer(blk, e->values.event.sounds);
+    initialPhases[soundId] = s->values.sound.phase;
+    printf("setting up initial phase %lf\n", initialPhases[soundId]);
     soundId++;
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
   }
@@ -196,15 +202,15 @@ __global__ void gkaHipSetSteps(
 }
 
 __global__ void gkaHipSetPhases(
-    gka_decimal_t *dest, double *initial_phases, double *steps, int period_size,
-    int N
+    gka_decimal_t *dest, double *initial_phases, double *final_phases,
+    double *steps, int period_size, int N
 ) {
   int frameId = hipThreadIdx_x + hipBlockDim_x * hipBlockIdx_x;
   if (frameId >= N)
     return;
 
   gka_set_phases_for_event_hipdevice(
-      dest, initial_phases, steps, frameId, period_size
+      dest, initial_phases, final_phases, steps, frameId, period_size
   );
 }
 
@@ -231,6 +237,7 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   double *stepsBuff;
   double *phasesBuff;
   double *initialPhasesBuff;
+  double *finalPhasesBuff;
 
   // test_print_mem_block(src);
 
@@ -238,6 +245,7 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
   double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
   double *initialPhases = (double *)malloc(soundCount * sizeof(double));
+  double *finalPhases = (double *)malloc(soundCount * sizeof(double));
   gka_gather_sounds_phases(src, initialPhases);
 
   hipMalloc((void **)&stepsBuff, soundCount * count * sizeof(double));
@@ -245,6 +253,8 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   hipMalloc((void **)&srcBuff, src->values.head.allocated);
   hipMalloc((void **)&destBuff, sizeof(gka_decimal_t) * count);
   hipMalloc((void **)&initialPhasesBuff, sizeof(double) * soundCount);
+  hipMalloc((void **)&finalPhasesBuff, sizeof(double) * soundCount);
+
   hipMemcpy(srcBuff, src, src->values.head.allocated, hipMemcpyHostToDevice);
   hipMemcpy(
       initialPhasesBuff, initialPhases, sizeof(double) * soundCount,
@@ -260,7 +270,8 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   // calculate phase in series
   hipLaunchKernelGGL(
       gkaHipSetPhases, dim3((soundCount / blockSize) + 1), dim3(blockSize), 0,
-      0, phasesBuff, initialPhasesBuff, stepsBuff, count, soundCount
+      0, phasesBuff, initialPhasesBuff, finalPhasesBuff, stepsBuff, count,
+      soundCount
   );
 
   // process sound
@@ -280,23 +291,23 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   );
 
   hipMemcpy(
-      initialPhases, initialPhasesBuff, sizeof(double) * soundCount,
-      hipMemcpyHostToDevice
+      finalPhases, finalPhasesBuff, sizeof(double) * soundCount,
+      hipMemcpyDeviceToHost
   );
 
   hipMemcpy(
       dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
   );
 
-  gka_persist_phases(src, initialPhases, count);
-
   hipFree(stepsBuff);
   hipFree(phasesBuff);
+  hipFree(initialPhasesBuff);
+  hipFree(finalPhasesBuff);
+
   hipFree(srcBuff);
   hipFree(destBuff);
 
   // free(debugSteps);
-  // free(initialPhases);
 
   /*
   printf("steps...\n");
@@ -310,14 +321,19 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   */
   printf("result phases...\n");
   for (int i = 0; i < soundCount; i++) {
-    printf("%lf\n", initialPhases[i]);
+    printf("%lf\n", finalPhases[i]);
   }
   /*
   printf("audio data...\n");
-  for (int i = 0; i < count; i++) {
+  for (int i = 0; i < 10; i++) {
     printf("%lf\n", dest[i]);
   }
   */
+
+  gka_persist_phases(src, finalPhases);
+
+  free(initialPhases);
+  free(finalPhases);
 
   // debug
   // exit(1);

@@ -93,7 +93,7 @@ public:
 
 class RenderHandler {
 public:
-  virtual function<void(void)> getAction(gka_time_t elapsed){};
+  virtual void render(gka_time_t elapsed){};
   virtual RenderHandler *makeInstance(
     struct gka_entry *src, int count, int rate
   ){};
@@ -119,7 +119,7 @@ public:
   RenderHandler *makeInstance(
     struct gka_entry *src, int count, int rate
   );
-  function<void(void)> getAction(gka_time_t elapsed);
+  void render(gka_time_t elapsed);
   ~HostRenderHandler(){
     free(this->dest);
   }
@@ -132,7 +132,7 @@ public:
   RenderHandler *makeInstance(
     struct gka_entry *src, int count, int rate
   );
-  function<void(void)> getAction(gka_time_t elapsed);
+  void render(gka_time_t elapsed);
   ~HipDeviceRenderHandler(){
     free(this->dest);
   }

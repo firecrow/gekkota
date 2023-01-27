@@ -19,16 +19,15 @@ RenderHandler *HipDeviceRenderHandler::makeInstance(
   return inst;
 }
 
-function<void(void)> HipDeviceRenderHandler::getAction(gka_time_t elapsed) {
+void HipDeviceRenderHandler::render(gka_time_t elapsed) {
   if (!this->count || this->src == nullptr) {
     initilization_error(
         GKA_GLOBAL_INIT_ERROR,
         "data required for rendering not yet sent to render handler\n"
     );
-    return nullptr;
+    return;
   }
-  return [count = this->count, dest = this->dest, src = this->src,
-          rate = this->rate, elapsed]() {
-    gka_process_audio_hip(dest, src, count, rate, elapsed);
-  };
+  gka_process_audio_hip(
+      this->dest, this->src, this->count, this->rate, elapsed
+  );
 }
