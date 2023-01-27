@@ -57,10 +57,10 @@ int main(int argc, char *argv[]) {
     thread midi(MidiService::loop);
     */
 
-  FrontEndService *fe = FrontEndService::getInstance();
-  fe->Init();
-  // fe->commit();
-  // fe->loop();
+  // FrontEndService *fe = FrontEndService::getInstance();
+  // fe->Init();
+  //  fe->commit();
+  //  fe->loop();
 
   audio.join();
   // midi.join();

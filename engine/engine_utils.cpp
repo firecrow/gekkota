@@ -121,7 +121,8 @@ int write_loop(const struct gka_audio_params &gka_params) {
     );
 
     // debug
-    break;
+    // break;
+    printf("rendered!\n");
 
     // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(

@@ -143,8 +143,9 @@ __PROCESS_GPU__ void gka_set_phases_for_event_hipdevice(
 }
 /* ------ persist phases on host ------ */
 
-__PROCESS_HOST__ gka_decimal_t
-gka_persist_phases(struct gka_entry *blk, double *phasesBuff, int period_size) {
+__PROCESS_HOST__ void gka_persist_phases(
+    struct gka_entry *blk, double *initialPhases, int period_size
+) {
 
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
@@ -155,13 +156,12 @@ gka_persist_phases(struct gka_entry *blk, double *phasesBuff, int period_size) {
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
     // last frame of this sound
-    int slot = soundId * period_size + (period_size - 1);
-    e->values.sound.phase = phasesBuff[slot];
+    printf("persisting phases %lf\n", initialPhases[soundId]);
+    e->values.sound.phase = initialPhases[soundId];
 
     soundlp = gka_entry_next(blk, soundlp, GKA_SOUND_EVENT);
     soundId++;
   }
-  return frame_value;
 }
 
 __PROCESS_HOST__ void
@@ -284,11 +284,11 @@ __PROCESS_HOST__ void gka_process_audio_hip(
       hipMemcpyHostToDevice
   );
 
-  gka_persist_phases(src, initialPhases, count);
-
   hipMemcpy(
       dest, destBuff, sizeof(gka_decimal_t) * count, hipMemcpyDeviceToHost
   );
+
+  gka_persist_phases(src, initialPhases, count);
 
   hipFree(stepsBuff);
   hipFree(phasesBuff);
@@ -321,7 +321,7 @@ __PROCESS_HOST__ void gka_process_audio_hip(
 
   // debug
   // exit(1);
-  printf("showing debug hip plot..\n");
-  FrontEndService *fe = FrontEndService::getInstance();
-  fe->plotPeriodData(dest);
+  // printf("showing debug hip plot..\n");
+  // FrontEndService *fe = FrontEndService::getInstance();
+  // fe->plotPeriodData(dest);
 };
