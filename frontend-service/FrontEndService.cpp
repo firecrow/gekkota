@@ -156,8 +156,8 @@ void FrontEndService::plotPeriodData(double *frames) {
   GkaPlot plot;
   plot.draw(chart, &data);
 
-  GkaCrosshair crosshair;
-  crosshair.draw(chart, &xyhair);
+  // GkaCrosshair crosshair;
+  // crosshair.draw(chart, &xyhair);
 
   FrontEndService *fe = FrontEndService::getInstance();
   fe->commit();
