@@ -23,7 +23,7 @@ __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
 
   // used to retrieve pre calculated phases
   int slot = soundId * period_size + frame;
-  return (double)sin(phases[slot]) * 0.2; // volume;
+  return (double)sin(phases[slot]) * volume;
 }
 
 __PROCESS_GPU__ double gka_get_frame_step_from_event_hipdevice(
@@ -244,18 +244,16 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   for (int i = 0; i < count; i++) {
     printf("%lf\n", debugSteps[i]);
   }
-  */
   printf("phases...\n");
   for (int i = 0; i < count; i++) {
     printf("%lf\n", debugPhases[i]);
   }
-  /*
+  */
   printf("audio data...\n");
   for (int i = 0; i < count; i++) {
     printf("%lf\n", dest[i]);
   }
-  */
 
   // debug
-  // exit(1);
+  exit(1);
 };

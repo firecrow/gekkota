@@ -6,6 +6,7 @@ gka_decimal_t gka_get_frame_value_from_event(
 ) {
 
   gka_local_address_t soundlp = event->values.event.sounds;
+
   double base = 1.0;
   double value = 0.0;
   int idx = 0;
@@ -23,7 +24,7 @@ gka_decimal_t gka_get_frame_value_from_event(
     }
 
     // reconcile phase for next time
-    double step = MAX_PHASE * freq / (double)rate; 
+    double step = MAX_PHASE * freq / (double)rate;
 
     value = (sin(s->values.sound.phase) * volume);
 
@@ -39,10 +40,11 @@ gka_decimal_t gka_get_frame_value_from_event(
   return value;
 }
 
-gka_decimal_t gka_frame_from_block(struct gka_entry *blk, gka_time_t local, int rate){
+gka_decimal_t
+gka_frame_from_block(struct gka_entry *blk, gka_time_t local, int rate) {
   gka_decimal_t frame_value = 0;
   struct gka_entry *head = gka_pointer(blk, 0);
-  gka_local_address_t soundlp = head->values.link.addr;
+  gka_local_address_t soundlp = head->values.head.addr;
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
     if (e->values.event.start > local) {

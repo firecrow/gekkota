@@ -5,10 +5,10 @@ using namespace std;
 typedef void (*void_fptr)();
 
 #include "./audio-segment/audio-segment.h"
-#include "./gka-debug/gka_debug.h"
 
-extern "C"{
+extern "C" {
 #include "./time/gka_time.h"
+#include "./gka-debug/gka_debug.h"
 }
 
 #include "./math/utils_global.h"

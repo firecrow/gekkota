@@ -52,8 +52,10 @@ int main(int argc, char *argv[]) {
   output.Setup(&gka_params);
   thread audio(output.getAction());
 
-  MidiService::setup();
-  thread midi(MidiService::loop);
+  /*
+    MidiService::setup();
+    thread midi(MidiService::loop);
+    */
 
   /*
   FrontEndService *fe = FrontEndService::getInstance();
@@ -63,7 +65,7 @@ int main(int argc, char *argv[]) {
   */
 
   audio.join();
-  midi.join();
+  // midi.join();
 
   printf("done.\n");
 }
