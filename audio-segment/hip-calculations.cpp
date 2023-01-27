@@ -1,4 +1,5 @@
 #include "hip-calculations.hpp"
+#include "../frontend-service/frontend-service.h"
 
 __PROCESS_GPU__ gka_decimal_t gka_get_frame_value_from_event_hipdevice(
     struct gka_entry *blk, double *phases, struct gka_entry *event, int soundId,
@@ -248,12 +249,15 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   for (int i = 0; i < count; i++) {
     printf("%lf\n", debugPhases[i]);
   }
-  */
   printf("audio data...\n");
   for (int i = 0; i < count; i++) {
     printf("%lf\n", dest[i]);
   }
+  */
 
   // debug
-  exit(1);
+  // exit(1);
+  printf("showing debug hip plot..\n");
+  FrontEndService *fe = FrontEndService::getInstance();
+  fe->plotPeriodData(dest);
 };

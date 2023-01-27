@@ -61,6 +61,12 @@ target_link_libraries(Gekkota logger)
 add_subdirectory(gka-debug)
 target_link_libraries(Gekkota gka-debug) 
 
+add_subdirectory(math)
+target_link_libraries(Gekkota math) 
+
+add_subdirectory(plot-visual sibling-plot-visual)
+target_link_libraries(Gekkota plot_visual)
+
 target_link_libraries(Gekkota xkbcommon)
 target_link_libraries(Gekkota /usr/local/share/static/libblend2d.a)
 

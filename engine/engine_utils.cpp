@@ -120,6 +120,9 @@ int write_loop(const struct gka_audio_params &gka_params) {
         &finalizer, ctx->sound_blocks, gka_params.period_size, gka_params.rate
     );
 
+    // debug
+    break;
+
     // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(
         gka_params, output_objects->areas, 0, gka_params.period_size,

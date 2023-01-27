@@ -281,7 +281,6 @@ void commit_ui(FrontEndService *fe, struct wl_buffer *buffer) {
 
   wl_display_roundtrip(fe->fe_global.display);
 
-  fflush(stdout);
   wl_surface_attach(fe->fe_global.surface, buffer, 0, 0);
   wl_surface_commit(FrontEndService::getInstance()->fe_global.surface);
 }
