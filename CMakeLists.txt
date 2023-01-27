@@ -30,12 +30,11 @@ add_subdirectory(engine)
 target_link_libraries(Gekkota engine)
 
 add_subdirectory(audio-segment)
+target_link_libraries(Gekkota audio-segment)
 if("$ENV{GPU}" STREQUAL "hip")
     target_include_directories(Gekkota PRIVATE "/opt/rocm/include")
     target_link_libraries(Gekkota engine-hip)
     target_link_libraries(Gekkota audio-segment-hip)
-else()
-    target_link_libraries(Gekkota audio-segment)
 endif()
 
 add_subdirectory(instrument)
