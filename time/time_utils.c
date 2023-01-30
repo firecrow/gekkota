@@ -1,5 +1,4 @@
 #include <time.h>
-#include "../block-sound-mem/block-sound-mem.h"
 #include "gka_time.h"
 
 gka_time_t from_timespec(struct timespec *t) {
@@ -27,13 +26,4 @@ gka_time_t gka_now() {
   struct timespec t;
   clock_gettime(CLOCK_REALTIME, &t);
   return t.tv_sec * NANOS + t.tv_nsec;
-}
-
-gka_time_t gka_time_modulus(gka_time_t src, gka_time_t mod) {
-  gka_time_t remainder = src;
-  if (src > mod) {
-    gka_time_t times = src / mod;
-    remainder = src - mod * times;
-  }
-  return remainder;
 }

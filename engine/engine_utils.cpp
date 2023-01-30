@@ -2,20 +2,6 @@
 
 static const char *device = "hw:4,0"; /* playback device */
 
-static double generate_frame_value(
-    vector<struct gka_mem_block *> blocks, gka_time_t local, const uint32_t rate
-) {
-  double frame_value = 0.0;
-  int sound_id = 0;
-
-  for (struct gka_mem_block *m : blocks) {
-    frame_value += gka_frame_from_block(m, local, rate);
-  }
-
-  fprintf(Title::instance.logger.file, "%lf\n", frame_value);
-  return frame_value;
-}
-
 static void generate_sine(
     const struct gka_audio_params &gka_params,
     const snd_pcm_channel_area_t *areas, snd_pcm_uframes_t offset, int count,
@@ -129,14 +115,22 @@ int write_loop(const struct gka_audio_params &gka_params) {
 
     Engine *engine = &Engine::instance;
     Title *ctx = &Title::instance;
-    const double *data =
-        engine->render(ctx->sound_blocks, period_size, gka_params.rate);
+    RenderFinalizer finalizer = RenderFinalizer(gka_params.period_size);
+    engine->render(
+        &finalizer, ctx->sound_blocks, gka_params.period_size, gka_params.rate
+    );
+
+    // debug
+    // break;
 
     // const double *data = generate_data(period_size, gka_params.rate);
-    generate_sine(gka_params, output_objects->areas, 0, period_size, data);
+    generate_sine(
+        gka_params, output_objects->areas, 0, gka_params.period_size,
+        finalizer.dest
+    );
 
     ptr = output_objects->samples;
-    cptr = period_size;
+    cptr = gka_params.period_size;
     while (cptr > 0) {
       r = snd_pcm_writei(gka_params.output_handle, ptr, cptr);
       if (r == -EAGAIN)
@@ -151,9 +145,13 @@ int write_loop(const struct gka_audio_params &gka_params) {
       ptr += r * gka_params.channels;
       cptr -= r;
     }
+
+    // pause for 50000 nano seconds, 1/2 period size
+    // TODO: replace with polling
+    struct timespec remaining, sleep_for = {0, 5000};
+    nanosleep(&sleep_for, &remaining);
   }
 
-  printf("in bottom of write loop function\n");
   free(output_objects->areas);
   free(output_objects->samples);
   free(output_objects);

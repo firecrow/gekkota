@@ -66,6 +66,7 @@ public:
   void teardown();
   void drawDemo();
   void commit();
+  void plotPeriodData(double *frames);
   bool running;
   struct gka_wl_components fe_global;
   wl_buffer *buffer;

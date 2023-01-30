@@ -4,14 +4,15 @@ using namespace std;
 
 typedef void (*void_fptr)();
 
+#include "./audio-segment/audio-segment.h"
+
 extern "C" {
-#include "./sound/sound.h"
+#include "./time/gka_time.h"
 #include "./gka-debug/gka_debug.h"
 }
 
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"
-#include "./time/gka_time.h"
 #include "./logger/logger.h"
 #include "./service/service.h"
 #include "./engine/engine.h"

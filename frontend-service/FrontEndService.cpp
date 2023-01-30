@@ -123,3 +123,46 @@ FrontEndService *FrontEndService::getInstance() {
   }
   return _instance;
 }
+
+void FrontEndService::plotPeriodData(double *frames) {
+  int diagram_width = 50;
+
+  PlotData data;
+  gka_tv_datapoint xhpoint;
+  PlotData xyhair;
+  xhpoint.end = xhpoint.start = xhpoint.start = xhpoint.time = 0;
+  xyhair.points.push_back(&xhpoint);
+
+  struct gka_tv_datapoint *prev = nullptr;
+  for (int i = 0; i < 1920; i++) {
+
+    struct gka_tv_datapoint *d = new gka_tv_datapoint();
+    d->start = 0; // overwritten by an existing previous event
+
+    d->end = frames[i];
+    d->time = (double)i;
+    d->meta = 0;
+
+    if (prev) {
+      d->start = prev->end;
+      data.points.push_back(d);
+    }
+    prev = d;
+  }
+  GkaChart *chart = new GkaChart(this->uictx);
+  chart->setDimensions(480, 1920);
+  chart->setRanges(0, 1920, 1.0, -1.0);
+
+  GkaPlot plot;
+  plot.draw(chart, &data);
+
+  // GkaCrosshair crosshair;
+  // crosshair.draw(chart, &xyhair);
+
+  FrontEndService *fe = FrontEndService::getInstance();
+  fe->commit();
+  fe->loop();
+  printf("\x1b[36mdrawing...\n\x1b[0m");
+
+  delete chart;
+}

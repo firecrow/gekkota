@@ -30,4 +30,5 @@ void GkaPlot::draw(GkaChart *chart, PlotData *data) {
   chart->uictx->setStrokeStartCap(BL_STROKE_CAP_BUTT);
   chart->uictx->setStrokeEndCap(BL_STROKE_CAP_BUTT);
   chart->uictx->strokePath(path);
+  printf("\x1b[36mstroking\x1b[0m\n");
 }

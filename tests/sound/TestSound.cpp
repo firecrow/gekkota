@@ -16,7 +16,7 @@ class GkaSoundFixture : public testing::Test {
 protected:
   GkaSoundFixture() {}
   static gka_entry *MakeExampleSoundEvent(
-      struct gka_mem_block *m, gka_time_t start, gka_decimal_t basevol
+      struct gka_entry *m, gka_time_t start, gka_decimal_t basevol
   ) {
 
     gka_local_address_t vol_pattern_seg =
@@ -43,7 +43,7 @@ protected:
 };
 
 TEST_F(GkaSoundFixture, TestPhaseIncrement) {
-  struct gka_mem_block *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
+  struct gka_entry *m = gka_alloc_memblock(16 * sizeof(struct gka_entry));
   struct gka_entry *event = GkaSoundFixture::MakeExampleSoundEvent(m, 0, 0.0);
 
   gka_entry *s_alpha = gka_pointer(m, event->values.event.sounds);
@@ -68,7 +68,7 @@ TEST_F(GkaSoundFixture, TestPhaseIncrement) {
 }
 
 TEST_F(GkaSoundFixture, TestClimbThroughSounds) {
-  struct gka_mem_block *m = gka_alloc_memblock(32 * GKA_SEGMENT_SIZE);
+  struct gka_entry *m = gka_alloc_memblock(32 * GKA_SEGMENT_SIZE);
   struct gka_entry *event1 = GkaSoundFixture::MakeExampleSoundEvent(m, 1, 0.0);
   struct gka_entry *event2 =
       GkaSoundFixture::MakeExampleSoundEvent(m, 100, 0.5);

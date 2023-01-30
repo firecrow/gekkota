@@ -13,6 +13,4 @@ int subtract_time(gka_time_t a, gka_time_t b, gka_time_t out);
 
 gka_time_t from_timespec(struct timespec *t);
 
-gka_time_t gka_time_modulus(gka_time_t src, gka_time_t mod);
-
 gka_time_t gka_now();

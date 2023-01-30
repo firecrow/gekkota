@@ -24,14 +24,14 @@ int main(int argc, char *argv[]) {
 
   title->Init();
 
-  struct gka_mem_block *m = gka_alloc_memblock(64 * GKA_SEGMENT_SIZE);
+  struct gka_entry *m = gka_alloc_memblock(64 * GKA_SEGMENT_SIZE);
   Tone::constructSound(m, 440.0, 0.5, BEAT_NS_32nds * 64);
   title->sound_blocks.push_back(m);
   printf(
       "pushing back a block of sounds at %ld %ld\n", m,
       title->sound_blocks.size()
   );
-  test_print_mem_block(m);
+  // test_print_mem_block(m);
 
   KeysInstrument *Keys = new KeysInstrument(title->midiRouter);
   title->midiRouter->instruments.push_back(Keys);
@@ -52,18 +52,18 @@ int main(int argc, char *argv[]) {
   output.Setup(&gka_params);
   thread audio(output.getAction());
 
-  MidiService::setup();
-  thread midi(MidiService::loop);
-
   /*
-  FrontEndService *fe = FrontEndService::getInstance();
-  fe->Init();
-  fe->commit();
-  fe->loop();
-  */
+    MidiService::setup();
+    thread midi(MidiService::loop);
+    */
+
+  // FrontEndService *fe = FrontEndService::getInstance();
+  // fe->Init();
+  //  fe->commit();
+  //  fe->loop();
 
   audio.join();
-  midi.join();
+  // midi.join();
 
   printf("done.\n");
 }
