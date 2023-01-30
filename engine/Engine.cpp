@@ -11,7 +11,6 @@ void Engine::render(
     RenderFinalizer *finalizer, vector<struct gka_entry *> blocks, int count,
     uint32_t rate
 ) {
-  printf("\x1b[36m::render...\x1b[0m\n");
   // TODO: make this a round robin lottery to balance handlers
   RenderHandler *handler = this->handlers.front();
 

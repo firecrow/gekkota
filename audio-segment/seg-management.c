@@ -179,11 +179,10 @@ __PROCESS_BOTH__ gka_local_address_t gka_segment_create(
 }
 
 __PROCESS_BOTH__ gka_local_address_t gka_segment_new(
-        struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
-        gka_operand_t ease
-    ) {
-  gka_local_address_t localp =
-      gka_allocate_space(blk, GKA_SEGMENT_SIZE*2);
+    struct gka_entry *blk, gka_value_t start_time, gka_decimal_t start_value,
+    gka_operand_t ease
+) {
+  gka_local_address_t localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE * 2);
 
   if (localp == GKA_BOUNDRY_ACTION) {
     return GKA_MEMORY_FAILURE;
@@ -269,8 +268,6 @@ __PROCESS_BOTH__ gka_local_address_t gka_sound_event_create(
   gka_local_address_t localp = 0;
 
   struct gka_entry *head = gka_pointer(blk, 0);
-  // this is the first sound becuase the entry record does not yet link to a
-  // starting place
   if (head->values.all.type == GKA_HEAD) {
 
     localp = gka_allocate_space(blk, GKA_SEGMENT_SIZE * 2);
@@ -285,10 +282,6 @@ __PROCESS_BOTH__ gka_local_address_t gka_sound_event_create(
     gka_set_entry_status(blk, neighbour_address, GKA_RESERVED_BY_NEIGHBOUR);
 
   } else if (head->values.all.type == GKA_NEXT_LOCAL) {
-    printf(
-        "\x1b[36mnth from %ld\x1b[0m\n",
-        head->values.link.addr / GKA_SEGMENT_SIZE
-    );
     localp = gka_add_entry_to_set(blk, head->values.link.addr, GKA_SOUND_EVENT);
   }
 

@@ -154,12 +154,6 @@ gka_persist_phases(struct gka_entry *blk, double *initialPhases) {
 
   while (soundlp) {
     struct gka_entry *e = gka_pointer(blk, soundlp);
-    // last frame of this sound
-    printf("persisting phases %lf\n", initialPhases[soundId]);
-    printf(
-        "sound(%ld), @%ld\n", e->values.event.sounds,
-        e->values.event.sounds / GKA_SEGMENT_SIZE
-    );
     struct gka_entry *s = gka_pointer(blk, e->values.event.sounds);
     s->values.sound.phase = initialPhases[soundId];
 
@@ -239,8 +233,6 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   double *initialPhasesBuff;
   double *finalPhasesBuff;
 
-  // test_print_mem_block(src);
-
   int soundCount = gka_count_sounds_in_block(src);
   double *debugSteps = (double *)malloc(soundCount * count * sizeof(double));
   double *debugPhases = (double *)malloc(soundCount * count * sizeof(double));
@@ -307,37 +299,9 @@ __PROCESS_HOST__ void gka_process_audio_hip(
   hipFree(srcBuff);
   hipFree(destBuff);
 
-  // free(debugSteps);
-
-  /*
-  printf("steps...\n");
-  for (int i = 0; i < count; i++) {
-    printf("%lf\n", debugSteps[i]);
+  if (0) {
+    printf("showing debug hip plot...\n");
+    FrontEndService *fe = FrontEndService::getInstance();
+    fe->plotPeriodData(dest);
   }
-  printf("phases...\n");
-  for (int i = 0; i < count; i++) {
-    printf("%lf\n", debugPhases[i]);
-  }
-  */
-  printf("result phases...\n");
-  for (int i = 0; i < soundCount; i++) {
-    printf("%lf\n", finalPhases[i]);
-  }
-  /*
-  printf("audio data...\n");
-  for (int i = 0; i < 10; i++) {
-    printf("%lf\n", dest[i]);
-  }
-  */
-
-  gka_persist_phases(src, finalPhases);
-
-  free(initialPhases);
-  free(finalPhases);
-
-  // debug
-  // exit(1);
-  // printf("showing debug hip plot..\n");
-  // FrontEndService *fe = FrontEndService::getInstance();
-  // fe->plotPeriodData(dest);
 };

@@ -2,7 +2,6 @@
 using namespace std;
 #include "plot-visual.h"
 void GkaCrosshair::draw(GkaChart *chart, PlotData *data) {
-  cout << "\x1b[33mxhar draw\x1b[0m" << endl;
   BLGradient gradient(BLLinearGradientValues(0, 0, 0, chart->width));
   gradient.addStop(0.0, BLRgba32(0xFFFFFFFF));
   gradient.addStop(1.0, BLRgba32(0xFFFFFF00));

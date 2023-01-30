@@ -7,12 +7,10 @@ void tear_down(int sig) {
 
   AudioOutputService::running = false;
   MidiService::running = false;
-  // FrontEndService::running = false;
   sleep(2);
 
   MidiService::teardown();
   AudioOutputService::instance.Teardown();
-  // FrontEndService::teardown();
   printf("\x1b[33mdown\x1b[0m\n");
 }
 
@@ -31,7 +29,6 @@ int main(int argc, char *argv[]) {
       "pushing back a block of sounds at %ld %ld\n", m,
       title->sound_blocks.size()
   );
-  // test_print_mem_block(m);
 
   KeysInstrument *Keys = new KeysInstrument(title->midiRouter);
   title->midiRouter->instruments.push_back(Keys);
@@ -52,18 +49,16 @@ int main(int argc, char *argv[]) {
   output.Setup(&gka_params);
   thread audio(output.getAction());
 
-  /*
-    MidiService::setup();
-    thread midi(MidiService::loop);
-    */
+  MidiService::setup();
+  thread midi(MidiService::loop);
 
-  // FrontEndService *fe = FrontEndService::getInstance();
-  // fe->Init();
-  //  fe->commit();
-  //  fe->loop();
+  FrontEndService *fe = FrontEndService::getInstance();
+  fe->Init();
+  fe->commit();
+  fe->loop();
 
   audio.join();
-  // midi.join();
+  midi.join();
 
   printf("done.\n");
 }

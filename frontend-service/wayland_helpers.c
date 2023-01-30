@@ -23,10 +23,6 @@ void set_cursor_from_pool(
   if (data->buffer == NULL)
     goto cleanup_surface;
 
-  /*
-  wl_pointer_set_user_data(pointer, data);
-  */
-
   return;
 
 cleanup_surface:
@@ -54,10 +50,6 @@ static void pointer_handle_button(
 
   if (button == BTN_LEFT && state == WL_POINTER_BUTTON_STATE_PRESSED) {
     printf("clicked..\n");
-    /*
-    xdg_toplevel_move(FrontEndService::getInstance()->fe_global.xdg_toplevel,
-    seat, serial);
-    */
   }
 }
 
@@ -76,7 +68,6 @@ static void keyboard_modifiers(
     uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked,
     uint32_t group
 ) {
-  printf("in kb modifiers");
   xkb_state_update_mask(
       xkb_state, mods_depressed, mods_latched, mods_locked, 0, 0, group
   );
@@ -180,17 +171,9 @@ static void handle_global(
     FrontEndService::getInstance()->fe_global.shm =
         (struct wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
 
-    printf(
-        "\x1b[33msetting %p shm %ld\x1b[0m\n", FrontEndService::getInstance(),
-        FrontEndService::getInstance()->fe_global.shm
-    );
-
   } else if (strcmp(interface, wl_seat_interface.name) == 0) {
     struct wl_seat *seat =
         (wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
-    /*
-        pointer = wl_seat_get_pointer(seat);
-    */
     wl_seat_add_listener(seat, &seat_listener, NULL);
 
   } else if (strcmp(interface, wl_compositor_interface.name) == 0) {

@@ -23,8 +23,6 @@ struct wl_buffer *FrontEndService::createBuffer() {
     printf("data allocated behind fd at address %ld\n", shm_data);
   }
 
-  printf("\x1b[36msetting %p shm %ld\x1b[0m\n", this, this->fe_global.shm);
-
   struct wl_shm_pool *pool = wl_shm_create_pool(this->fe_global.shm, fd, size);
   struct wl_buffer *buffer = wl_shm_pool_create_buffer(
       pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888
@@ -156,13 +154,12 @@ void FrontEndService::plotPeriodData(double *frames) {
   GkaPlot plot;
   plot.draw(chart, &data);
 
-  // GkaCrosshair crosshair;
-  // crosshair.draw(chart, &xyhair);
+  GkaCrosshair crosshair;
+  crosshair.draw(chart, &xyhair);
 
   FrontEndService *fe = FrontEndService::getInstance();
   fe->commit();
   fe->loop();
-  printf("\x1b[36mdrawing...\n\x1b[0m");
 
   delete chart;
 }

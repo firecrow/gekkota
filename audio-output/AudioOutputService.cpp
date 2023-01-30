@@ -3,7 +3,6 @@
 AudioOutputService::AudioOutputService() {
   Engine *engine = &Engine::instance;
   engine->handlers.push_back(new HipDeviceRenderHandler());
-  // engine->handlers.push_back(new HostRenderHandler());
 }
 
 AudioOutputService _audiosvc;
@@ -13,10 +12,6 @@ bool AudioOutputService::running = 1;
 
 void AudioOutputService::Setup(struct gka_audio_params *gka_params) {
   setup_hw(gka_params);
-
-  // debug
-  // gka_params->period_size = 1920;
-
   this->gka_params = *gka_params;
 };
 

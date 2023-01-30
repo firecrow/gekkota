@@ -86,7 +86,7 @@ allocate_framegroup_memory(const struct gka_audio_params &gka_params) {
       gka_params.channels, sizeof(snd_pcm_channel_area_t)
   );
   if (areas == NULL) {
-    printf("No enough memory\n");
+    printf("Fialure not enough memory in allocating areas\n");
     exit(EXIT_FAILURE);
   }
   int chn;
@@ -120,10 +120,6 @@ int write_loop(const struct gka_audio_params &gka_params) {
         &finalizer, ctx->sound_blocks, gka_params.period_size, gka_params.rate
     );
 
-    // debug
-    // break;
-
-    // const double *data = generate_data(period_size, gka_params.rate);
     generate_sine(
         gka_params, output_objects->areas, 0, gka_params.period_size,
         finalizer.dest
@@ -146,9 +142,8 @@ int write_loop(const struct gka_audio_params &gka_params) {
       cptr -= r;
     }
 
-    // pause for 50000 nano seconds, 1/2 period size
     // TODO: replace with polling
-    struct timespec remaining, sleep_for = {0, 5000};
+    struct timespec remaining, sleep_for = {0, gka_params.period_size / 2};
     nanosleep(&sleep_for, &remaining);
   }
 
@@ -159,14 +154,12 @@ int write_loop(const struct gka_audio_params &gka_params) {
 }
 
 int setup_hw(struct gka_audio_params *gka_params) {
-  printf("Setting up hw in engine\n");
 
   int err;
   unsigned int chn;
   snd_pcm_channel_area_t *areas;
   signed short *samples;
 
-  printf("Playback device is %s\n", device);
   printf(
       "Stream parameters are %uHz, %s, %u channels\n", gka_params->rate,
       snd_pcm_format_name(gka_params->format), gka_params->channels
@@ -197,11 +190,9 @@ int setup_hw(struct gka_audio_params *gka_params) {
     exit(EXIT_FAILURE);
   }
 
-  printf("Setup complete\n");
   return 0;
 }
 
 void tear_down_audio(struct gka_audio_params *gka_params) {
-  printf("tearing down handle %ld\n", gka_params->output_handle);
   snd_pcm_close(gka_params->output_handle);
 }

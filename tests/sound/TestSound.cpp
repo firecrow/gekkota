@@ -37,7 +37,6 @@ protected:
 
     gka_local_address_t eventlp = gka_sound_event_create(m, soundlp, start, 0);
 
-    printf("eventlp %ld", eventlp / GKA_SEGMENT_SIZE);
     return gka_pointer(m, eventlp);
   }
 };

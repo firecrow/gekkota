@@ -33,30 +33,4 @@ gka_local_address_t Tone::constructSound(
 gka_local_address_t
 Tone::constructKey(struct gka_entry *blk, double freq, gka_time_t duration) {
   return 0;
-  /*
-  double fluctuate_tone = 3.0;
-  vector<GkaSound *> group = {};
-  int GROUP_SIZE = 1;
-  for (int i = 0; i < GROUP_SIZE; i++) {
-  double local_freq =
-      freq + fluctuate_tone * (rand() / RAND_MAX) - (fluctuate_tone * 0.5);
-
-  gka_segpattern *freq_segs =
-      new gka_segpattern(new gka_segment(0, local_freq, &square_ease));
-
-  gka_segpattern *volume_segs =
-      new gka_segpattern(new gka_segment(0, 0.1 / GROUP_SIZE, &ease_out));
-
-  gka_segpattern *distortion_segs =
-      new gka_segpattern(new gka_segment(0, 0.0, &square_ease));
-
-  GkaSound *sound = new GkaSound(freq_segs, volume_segs, distortion_segs);
-  sound->phase = (rand() / RAND_MAX) * MAX_PHASE;
-  group.push_back(sound);
-  }
-
-  GkaSoundEvent *eventg = new GkaSoundEvent(group, NULL, NULL);
-
-  return eventg;
-  */
 }

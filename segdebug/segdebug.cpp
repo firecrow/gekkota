@@ -3,10 +3,8 @@
 using namespace std;
 
 void tear_down(int sig) {
-  printf("\x1b[33mtearing down\x1b[0m\n");
   FrontEndService::getInstance()->running = false;
   FrontEndService::getInstance()->teardown();
-  printf("\x1b[33mdown\x1b[0m\n");
 }
 
 void plot_seg_example(FrontEndService *fe) {
@@ -55,19 +53,14 @@ void plot_seg_example(FrontEndService *fe) {
 }
 
 int main() {
-  printf("and the pattern is....\n");
-  printf("starting.........'\n");
-
   FrontEndService *fe = FrontEndService::getInstance();
 
   fe->Init();
 
   plot_seg_example(fe);
-  printf("about to commit");
   fe->commit();
 
   fe->loop();
 
   signal(SIGINT, tear_down);
-  printf("done.\n");
 }
