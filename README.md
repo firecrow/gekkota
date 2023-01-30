@@ -15,3 +15,6 @@ The segments pack into a memory structure which is sent across to the gpu for pa
 * plot-visiaul - This is the mapping of audio data to a visual display of it
 * instrument - This is where the midi events are handled and translated into internal sound events
 * frontend-service - This is the code that intefaces with the front end windowing framework (wayland)
+
+## Further discussion
+For further discussion, see [gekkota.net](https://gekkota.net) for a detailed description of the motivations, objectives, roadmap, and overall architecture of the system.
