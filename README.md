@@ -1,11 +1,11 @@
-*Gekkota*
+# Gekkota
 Gekkota is a sythesizer and audio composition program that uses algorithms to generate sound data on the gpu.
 
 The core processing enging stores sounds in a segment structure to indicate points of transition such as frequency, volume, and eventally shape. These segments are used to calculate the audio frames using linear algebra.
 
 The segments pack into a memory structure which is sent across to the gpu for parallel processing for a given period (usually 1 1/100th of a second or 1920 frames for 192khz).
 
-**Code Organization**
+## Code Organization
 * audio-segment - This the memomory structure and calculation code for the segments
 * engine - This code calculates and processes the segments into audio data, on the host or gpu
 * ui - This is the directory with the main executable
