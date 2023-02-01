@@ -125,7 +125,6 @@ __PROCESS_BOTH__ gka_local_address_t gka_add_entry_to_set(
     last = next;
     next = gka_entry_next(blk, localp, type);
   }
-  printf("rocking on from last:%ld\n", last / GKA_SEGMENT_SIZE);
   return gka_extend_entry(blk, last);
 }
 
