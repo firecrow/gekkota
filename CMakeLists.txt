@@ -55,9 +55,6 @@ target_link_libraries(Gekkota time)
 add_subdirectory(title)
 target_link_libraries(Gekkota title)
 
-add_subdirectory(logger)
-target_link_libraries(Gekkota logger)
-
 add_subdirectory(gka-debug)
 target_link_libraries(Gekkota gka-debug) 
 

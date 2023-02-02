@@ -14,7 +14,6 @@ extern "C" {
 #include "./math/utils_global.h"
 #include "./frontend-service/frontend-service.h"
 #include "./logger/logger.h"
-#include "./service/service.h"
 #include "./engine/engine.h"
 #include "./audio-output/audio.h"
 #include "./midi/midi.h"

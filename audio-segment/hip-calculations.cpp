@@ -297,10 +297,4 @@ __PROCESS_HOST__ void gka_process_audio_hip(
 
   hipFree(srcBuff);
   hipFree(destBuff);
-
-  if (0) {
-    printf("showing debug hip plot...\n");
-    FrontEndService *fe = FrontEndService::getInstance();
-    fe->plotPeriodData(dest);
-  }
 };

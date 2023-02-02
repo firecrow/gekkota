@@ -35,9 +35,4 @@ void HostRenderHandler::render(gka_time_t elapsed) {
 
     dest[f] = gka_frame_from_block(this->src, local, this->rate);
   }
-  if (0) {
-    printf("showing debug host plot..\n");
-    FrontEndService *fe = FrontEndService::getInstance();
-    fe->plotPeriodData(this->dest);
-  }
 };
