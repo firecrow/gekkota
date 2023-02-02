@@ -49,27 +49,75 @@ struct gka_wl_components {
   struct xdg_toplevel *xdg_toplevel;
 };
 
+/**
+ * This is a callback function convention used by the wayland api's to send
+ * keyboard events for the active window
+ */
 typedef void (*on_key_func
 )(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t time,
   uint32_t key, uint32_t state);
 
-void run_audio_output();
-
+/**
+ * The front end service is a class that manages the front end window manager,
+ * This is presently Wayland on Linux
+ *
+ */
 class FrontEndService {
 public:
+  /**
+   * These functions and instnaces are for global access, usually used for areas
+   * of the application to draw diagrams and propogate visualization events when
+   * certain actions happen or data is available
+   */
   static FrontEndService *getInstance();
   static FrontEndService *_instance;
   FrontEndService();
+  /**
+   * This function initializes the screen properties from Wayland and the
+   * keyboard properties from XKeyboard, as well as the drawing api Blend2D
+   * which is used extensively in plot-visual
+   */
   void Init();
+  /**
+   * This is the loop that listens for events and updates to the screen, this is
+   * launched in a the foreground and treated as the main thread of the
+   * application
+   */
   void loop();
+  /**
+   * This function instnantiates the buffer for committing the pixels in memory
+   * onto the screen
+   */
   struct wl_buffer *createBuffer();
+  /**
+   * tear down and cleanup memory
+   */
   void teardown();
-  void drawDemo();
+  /**
+   * This function commits changes from the buffer to the screen
+   */
   void commit();
-  void plotPeriodData(double *frames);
+  /**
+   * Variable used to determine if certain repetative events should continue
+   */
   bool running;
+  /**
+   * These are components used by Wayland callbacks which are global callbacks
+   * into the Wayland framework
+   */
   struct gka_wl_components fe_global;
+  /**
+   * Local buffer stored for presenting information to the screen
+   */
   wl_buffer *buffer;
+  /**
+   * This is the Blend2D context used for drawing visulizations
+   */
   BLContext *uictx;
+  /**
+   * This is the Blend2D image object which sits on top of the buffer to place
+   * Blend2D designs into the buffer so that the commit function can present
+   * them to the screen using Wayland
+   */
   BLImage *_img;
 };

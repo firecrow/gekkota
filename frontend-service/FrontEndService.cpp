@@ -80,22 +80,6 @@ void FrontEndService::Init() {
   commit_ui(this, buffer);
 }
 
-void FrontEndService::drawDemo() {
-
-  BLPath path;
-  path.moveTo(26, 31);
-  path.cubicTo(642, 132, 587, -136, 25, 464);
-  path.cubicTo(882, 404, 144, 267, 27, 31);
-
-  this->uictx->setCompOp(BL_COMP_OP_SRC_OVER);
-  this->uictx->setFillStyle(BLRgba32(0xFFFFFFFF));
-  this->uictx->fillPath(path);
-
-  this->uictx->end();
-
-  this->commit();
-};
-
 void FrontEndService::commit() {
   this->uictx->end();
   commit_ui(this, buffer);
@@ -108,7 +92,7 @@ void FrontEndService::teardown() {
 
 void FrontEndService::loop() {
   while (wl_display_dispatch(this->fe_global.display) != -1 && this->running) {
-    printf("\x1b[36m.\x1b[0m");
+    // This intentially left blank
   }
   cout << "end front end loop" << endl;
 };
@@ -120,46 +104,4 @@ FrontEndService *FrontEndService::getInstance() {
     cout << "allocating the fe" << endl;
   }
   return _instance;
-}
-
-void FrontEndService::plotPeriodData(double *frames) {
-  int diagram_width = 50;
-
-  PlotData data;
-  gka_tv_datapoint xhpoint;
-  PlotData xyhair;
-  xhpoint.end = xhpoint.start = xhpoint.start = xhpoint.time = 0;
-  xyhair.points.push_back(&xhpoint);
-
-  struct gka_tv_datapoint *prev = nullptr;
-  for (int i = 0; i < 1920; i++) {
-
-    struct gka_tv_datapoint *d = new gka_tv_datapoint();
-    d->start = 0; // overwritten by an existing previous event
-
-    d->end = frames[i];
-    d->time = (double)i;
-    d->meta = 0;
-
-    if (prev) {
-      d->start = prev->end;
-      data.points.push_back(d);
-    }
-    prev = d;
-  }
-  GkaChart *chart = new GkaChart(this->uictx);
-  chart->setDimensions(480, 1920);
-  chart->setRanges(0, 1920, 1.0, -1.0);
-
-  GkaPlot plot;
-  plot.draw(chart, &data);
-
-  GkaCrosshair crosshair;
-  crosshair.draw(chart, &xyhair);
-
-  FrontEndService *fe = FrontEndService::getInstance();
-  fe->commit();
-  fe->loop();
-
-  delete chart;
 }
