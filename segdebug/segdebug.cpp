@@ -7,6 +7,10 @@ void tear_down(int sig) {
   FrontEndService::getInstance()->teardown();
 }
 
+/**
+ * This is a debugging application for visualizing the segment data using
+ * plot-visual
+ */
 void plot_seg_example(FrontEndService *fe) {
   gka_segment *segs[2];
 
