@@ -14,6 +14,14 @@ void tear_down(int sig) {
   printf("\x1b[33mdown\x1b[0m\n");
 }
 
+/**
+ * This is the main entry point to the flagship executable instance of the
+ * application.
+ *
+ * This instantiates and kicks off the windowing UI (Wayland), MIDI hardware
+ * event coordination, and then engine for processing sound events into frames
+ * on the Host or GPU to be output to the audio device (ALSA)
+ */
 int main(int argc, char *argv[]) {
   printf("starting.........'\n");
 
