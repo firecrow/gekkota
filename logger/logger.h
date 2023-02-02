@@ -1,3 +1,9 @@
+/**
+ * Some of the use cases, such as frames of a sound playing live, are longer
+ * than can be easlily sent as terminal output when debugging, this is an
+ * alternative to visualizing data, where moderate size data sets can be sent to
+ * a file for examination later.
+ */
 struct Logger {
   FILE *file;
   bool opened = false;
