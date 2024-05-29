@@ -5,6 +5,15 @@ The core processing enging stores sounds in a segment structure to indicate poin
 
 The segments pack into a memory structure which is sent across to the gpu for parallel processing for a given period (usually 1 1/100th of a second or 1920 frames for 192khz).
 
+# Project Purpose
+
+Gekkota was the begining of algorithmic effects within an audio-processor driven by a memory segment based animation framework. 
+
+# Status
+
+Experimental Idation
+
+
 ## Code Organization
 Comments and doc-string documentation is placed in the header .h or .hpp files. 
 The flagship executable of the application starts in `ui/frontend.main.cpp` with audio processing mainly in `engine` and the memory/processing code in `audio-segment`.
